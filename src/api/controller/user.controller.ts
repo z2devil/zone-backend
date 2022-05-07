@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { commonRes, silentHandle } from '../utils';
+import { commonResult, silentHandle } from '../../utils';
 import { CreateUserInput, FindUserInput } from '../schema/user.schema';
 import USER_CRUD from '../service/user.service';
 
@@ -12,7 +12,9 @@ export async function createUserHandler(
 ) {
     const [e, user] = await silentHandle(USER_CRUD.create, req.body);
 
-    return e ? commonRes.error(res, null, e.message) : commonRes(res, user);
+    return e
+        ? commonResult.error(res, null, e.message)
+        : commonResult(res, user);
 }
 
 /**
@@ -21,5 +23,7 @@ export async function createUserHandler(
 export async function findUserHandler(req: Request, res: Response) {
     const [e, user] = await silentHandle(USER_CRUD.find, req.query);
 
-    return e ? commonRes.error(res, null, e.message) : commonRes(res, user);
+    return e
+        ? commonResult.error(res, null, e.message)
+        : commonResult(res, user);
 }

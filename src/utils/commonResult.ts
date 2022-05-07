@@ -14,7 +14,7 @@ interface SendResType {
     message?: unknown;
 }
 
-function commonRes(res: Response, data: unknown, options?: OptionsType) {
+function commonResult(res: Response, data: unknown, options?: OptionsType) {
     options = Object.assign({ type: Code[200] }, options || {});
     const { type, status, message } = options;
 
@@ -34,7 +34,7 @@ function commonRes(res: Response, data: unknown, options?: OptionsType) {
 }
 
 // 错误响应
-commonRes.error = function (
+commonResult.error = function (
     res: Response,
     data: unknown,
     message?: unknown,
@@ -49,7 +49,7 @@ commonRes.error = function (
 };
 
 // 无权限响应
-commonRes.denied = function (res: Response, data: unknown) {
+commonResult.denied = function (res: Response, data: unknown) {
     this(res, data, {
         type: 'denied',
         message: CodeMessage.denied,
@@ -57,4 +57,4 @@ commonRes.denied = function (res: Response, data: unknown) {
     });
 };
 
-export default commonRes;
+export default commonResult;
