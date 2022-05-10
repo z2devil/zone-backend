@@ -1,15 +1,13 @@
-// 连接db
-
 import mongoose from 'mongoose';
-import config from '../../settings';
-import logger from './logger';
+import config from '../../../settings';
+import logger from '../../utils/logger';
 
 async function dbConnect() {
     try {
-        const connection = await mongoose.connect(config.dbUri, {
-            user: config.dbUser,
-            pass: config.dbPassword,
-            authSource: config.dbAuthSource,
+        const connection = await mongoose.connect(config.db.uri, {
+            user: config.db.user,
+            pass: config.db.password,
+            authSource: config.db.source,
         });
 
         logger.info('DB connected');

@@ -1,4 +1,3 @@
-// 接口参数校验 主要使用zod，具体使用可查看文档
 import { number, object, string, TypeOf } from 'zod';
 import { randomUtil } from '../../utils';
 

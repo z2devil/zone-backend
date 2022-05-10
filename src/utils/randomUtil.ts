@@ -11,6 +11,18 @@ export default {
     avatarPath: () => {
         return avatarPathLibrary[~~(Math.random() * avatarPathLibrary.length)];
     },
+    // 验证码
+    CAPTCHA: (length: number = 4) => {
+        const chars = '1234567890';
+        let res = '';
+        let len = chars.length - 1;
+        let idx;
+        for (let i = 0; i < length; i++) {
+            idx = Math.random() * len;
+            res = res + chars.charAt(idx);
+        }
+        return res;
+    },
 };
 
 /**

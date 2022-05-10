@@ -1,4 +1,4 @@
-import { BaseCrudProvider } from '../../utils';
+import { BaseCrudProvider } from '../../api/common';
 import ConfigModel, { ConfigDocument } from '../models/config.model';
 
 const CRUD = BaseCrudProvider<

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
-import { commonResult, jwtUtil, silentHandle } from '../utils';
+import { jwtUtil } from '../utils';
+import { result, silentHandle } from '../api/common';
 import { Authority } from '../constants/authority';
 import { UserDocument } from '../api/models/user.model';
 import USER_CRUD from '../api/service/user.service';
@@ -16,16 +17,14 @@ const validate =
             if (authority) {
                 const headers = req.headers;
                 // 校验token并获取信息
-                const authInfo = jwtUtil.verify(headers?.authorization);
-                // 判断用户信息是否足够
+                const { _id } = jwtUtil.verify(headers?.authorization);
+                // 判断用户权限是否足够
                 const [, users] = await silentHandle<Array<UserDocument>>(
                     USER_CRUD.find,
-                    {
-                        _id: authInfo._id,
-                    }
+                    { _id }
                 );
                 if (!users || users[0].lv < authority) {
-                    return commonResult.denied(res, null);
+                    return result.denied(res, null);
                 }
             }
             const parse = schema.parse({
@@ -39,7 +38,7 @@ const validate =
             req.params = parse.params;
             next();
         } catch (e: any) {
-            return commonResult.error(res, null, e.errors || e.message);
+            return result.error(res, null, e.errors || e.message);
         }
     };
 

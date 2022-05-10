@@ -25,7 +25,7 @@ router.get('/find', validate(findUserSchema), findUserHandler);
 router.delete('/remove', validate(findUserSchema), findUserHandler);
 
 /**
- * 测试
+ * 测试权限
  */
 router.get('/test', validate(findUserSchema, Authority.login), findUserHandler);
 

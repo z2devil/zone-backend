@@ -8,7 +8,7 @@ import { logger } from './utils';
 // 中间件
 import initMiddleware from './middleware';
 // mongodb
-import { dbConnect } from './utils';
+import { dbConnect } from './api/common';
 
 const app = express();
 

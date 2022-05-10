@@ -1,5 +1,6 @@
+import { UserDocument } from '../models/user.model';
 import { Request, Response } from 'express';
-import { commonResult, silentHandle } from '../../utils';
+import { result, silentHandle } from '../common';
 import { CreateUserInput, FindUserInput } from '../schema/user.schema';
 import USER_CRUD from '../service/user.service';
 
@@ -12,9 +13,7 @@ export async function createUserHandler(
 ) {
     const [e, user] = await silentHandle(USER_CRUD.create, req.body);
 
-    return e
-        ? commonResult.error(res, null, e.message)
-        : commonResult(res, user);
+    return e ? result.error(res, null, e.message) : result(res, user);
 }
 
 /**
@@ -23,7 +22,5 @@ export async function createUserHandler(
 export async function findUserHandler(req: Request, res: Response) {
     const [e, user] = await silentHandle(USER_CRUD.find, req.query);
 
-    return e
-        ? commonResult.error(res, null, e.message)
-        : commonResult(res, user);
+    return e ? result.error(res, null, e.message) : result(res, user);
 }

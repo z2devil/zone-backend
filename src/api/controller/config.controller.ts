@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { commonResult, silentHandle } from '../../utils';
+import { result, silentHandle } from '../../api/common';
 import CONFIG_CRUD from '../service/config.service';
 import { CreateConfigInput } from '../schema/config.schema';
 
@@ -8,7 +8,5 @@ export async function createConfigHandler(
     res: Response
 ) {
     const [e, power] = await silentHandle(CONFIG_CRUD.create, req.body);
-    return e
-        ? commonResult.error(res, null, e.message)
-        : commonResult(res, power);
+    return e ? result.error(res, null, e.message) : result(res, power);
 }

@@ -1,6 +1,6 @@
-import logger from './logger';
+import logger from '../../utils/logger';
 import { Response } from 'express';
-import { Code, codeType, CodeMessage } from '../constants/code';
+import { Code, codeType, CodeMessage } from '../../constants/code';
 
 interface OptionsType {
     type?: codeType;
@@ -14,7 +14,7 @@ interface SendResType {
     message?: unknown;
 }
 
-function commonResult(res: Response, data: unknown, options?: OptionsType) {
+function result(res: Response, data: unknown, options?: OptionsType) {
     options = Object.assign({ type: Code[200] }, options || {});
     const { type, status, message } = options;
 
@@ -34,7 +34,7 @@ function commonResult(res: Response, data: unknown, options?: OptionsType) {
 }
 
 // 错误响应
-commonResult.error = function (
+result.error = function (
     res: Response,
     data: unknown,
     message?: unknown,
@@ -49,7 +49,7 @@ commonResult.error = function (
 };
 
 // 无权限响应
-commonResult.denied = function (res: Response, data: unknown) {
+result.denied = function (res: Response, data: unknown) {
     this(res, data, {
         type: 'denied',
         message: CodeMessage.denied,
@@ -57,4 +57,4 @@ commonResult.denied = function (res: Response, data: unknown) {
     });
 };
 
-export default commonResult;
+export default result;
