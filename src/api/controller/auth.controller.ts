@@ -1,11 +1,9 @@
-import { DocumentDefinition } from 'mongoose';
-import { UserDocument } from '../models/user.model';
-import e, { Request, Response } from 'express';
-import { result, silentHandle, throwHandle } from '../common';
+import { Request, Response } from 'express';
+import { result, throwHandle } from '../common';
 import config from '../../../settings';
 import { redisUtils } from '../../redis';
 import { jwtUtil, randomUtil } from '../../utils';
-import emailer from '../../utils/email';
+import emailer from '../../utils/emailUtil';
 import USER_CRUD from '../service/user.service';
 
 /**
