@@ -10,20 +10,20 @@ export default {
             await client.set(
                 key,
                 typeof value === 'object' ? JSON.stringify(value) : value,
-                options
+                options ?? { KEEPTTL: true }
             );
-        } catch (error) {
-            console.log(error);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
     },
     // 获取
     get: async (key: string) => {
-        let res: unknown;
+        let res: string | null = null;
         try {
             const client = await getClient();
             res = await client.get(key);
-        } catch (error) {
-            console.log(error);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
         return res;
     },
@@ -32,8 +32,8 @@ export default {
         try {
             const client = await getClient();
             await client.del(key);
-        } catch (error) {
-            console.log(error);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
     },
     // 设置TTL
@@ -41,8 +41,8 @@ export default {
         try {
             const client = await getClient();
             await client.getEx(key, { EX: ttl });
-        } catch (error) {
-            console.log(error);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
     },
     // 获取TTL
@@ -51,8 +51,8 @@ export default {
         try {
             const client = await getClient();
             res = await client.ttl(key);
-        } catch (error) {
-            console.log(error);
+        } catch (e: any) {
+            throw new Error(e.message);
         }
         return res;
     },

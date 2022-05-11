@@ -6,5 +6,3 @@ export const createConfigSchema = object({
         action: string({ required_error: '缺少权限动作' }).min(1),
     }).strict(),
 });
-
-export type CreateConfigInput = TypeOf<typeof createConfigSchema>;

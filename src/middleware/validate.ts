@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
 import { jwtUtil } from '../utils';
-import { result, silentHandle } from '../api/common';
+import { result, throwHandle } from '../api/common';
 import { Authority } from '../constants/authority';
 import { UserDocument } from '../api/models/user.model';
 import USER_CRUD from '../api/service/user.service';
@@ -17,13 +17,10 @@ const validate =
             if (authority) {
                 const headers = req.headers;
                 // 校验token并获取信息
-                const { _id } = jwtUtil.verify(headers?.authorization);
+                const { email } = jwtUtil.verify(headers?.authorization);
                 // 判断用户权限是否足够
-                const [, users] = await silentHandle<Array<UserDocument>>(
-                    USER_CRUD.find,
-                    { _id }
-                );
-                if (!users || users[0].lv < authority) {
+                const user = await throwHandle(USER_CRUD.findOne, { email });
+                if (!user || user.lv < authority) {
                     return result.denied(res, null);
                 }
             }

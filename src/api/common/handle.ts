@@ -1,4 +1,3 @@
-// 如果执行过程有错误，则捕捉并赋值给返回数组的第一个元素
 async function silentHandle<T, U = Error>(
     fn: Function,
     ...args: Array<unknown>
@@ -14,4 +13,19 @@ async function silentHandle<T, U = Error>(
     return result;
 }
 
-export default silentHandle;
+async function throwHandle(
+    fn: Function,
+    ...args: Array<unknown>
+): Promise<any> {
+    let result: any;
+
+    try {
+        result = await fn(...args);
+    } catch (e: any) {
+        throw new Error(e.message);
+    }
+
+    return result;
+}
+
+export { throwHandle, silentHandle };

@@ -1,9 +1,10 @@
+import { DocumentDefinition } from 'mongoose';
 import { UserDocument } from '../models/user.model';
-import { Request, Response } from 'express';
-import { result, silentHandle } from '../common';
+import e, { Request, Response } from 'express';
+import { result, silentHandle, throwHandle } from '../common';
 import config from '../../../settings';
 import { redisUtils } from '../../redis';
-import { randomUtil } from '../../utils';
+import { jwtUtil, randomUtil } from '../../utils';
 import emailer from '../../utils/email';
 import USER_CRUD from '../service/user.service';
 
@@ -33,9 +34,13 @@ export async function sendCodeHandler(req: Request, res: Response) {
     // 验证码的value
     const codeValue = randomUtil.CAPTCHA();
     // redis中存入验证码
-    await redisUtils.set(codeKey, codeValue, {
-        EX: config.auth['code-expire-time'],
-    });
+    await redisUtils.set(
+        codeKey,
+        `${codeValue}-${config.auth['code-life-number']}`,
+        {
+            EX: config.auth['code-expire-time'],
+        }
+    );
     // 发送邮箱验证码
     emailer.send(
         email + '',
@@ -48,13 +53,66 @@ export async function sendCodeHandler(req: Request, res: Response) {
 }
 
 /**
- * 登录
+ * 登录或注册
  */
-export async function loginHandler(req: Request, res: Response) {
-    const [e, users] = await silentHandle<Array<UserDocument>>(
-        USER_CRUD.find,
-        req.query
-    );
-
-    return e ? result.error(res, null, e.message) : result(res, users);
+export async function signHandler(req: Request, res: Response) {
+    let data: object;
+    try {
+        // 获取请求参数
+        const { email, code } = req.body;
+        // 验证码的key
+        const codeKey = config.auth['code-prefix'] + email;
+        // 缓存中的验证码
+        let codeCache = await redisUtils.get(codeKey);
+        // 如果缓存中没有找到记录，返回错误
+        if (!codeCache) return result.error(res, null, '验证码过期或错误');
+        // 获取验证码和机会次数
+        const [codeValue, codeLife] = codeCache.split('-');
+        let chance = Number.parseInt(codeLife);
+        // 如果验证码和缓存记录不匹配
+        if (code !== codeValue) {
+            chance--;
+            if (chance === 0) {
+                await redisUtils.del(codeKey);
+                return result.error(
+                    res,
+                    null,
+                    '验证码失败次数过多, 请重新发送验证码'
+                );
+            } else {
+                await redisUtils.set(codeKey, `${codeValue}-${chance}`);
+                return result.error(
+                    res,
+                    null,
+                    `验证码错误, 您还有${chance}次机会`
+                );
+            }
+        }
+        // 删除验证码缓存
+        await redisUtils.del(codeKey);
+        // 根据邮箱查询用户，如果用户不存在则注册用户
+        let user = await throwHandle(USER_CRUD.findOne, { email });
+        if (!user) user = await throwHandle(USER_CRUD.create, { email });
+        // 生成token
+        const token = jwtUtil.create({ email });
+        // 将token存入缓存
+        await redisUtils.set(config.auth['token-prefix'] + email, token, {
+            EX: config.auth['token-expire-time'],
+        });
+        // 获取用户部分属性
+        const { lv, nickname, avatarPath } = user;
+        // 对结果赋值
+        data = {
+            info: {
+                email,
+                lv,
+                nickname,
+                avatarPath,
+            },
+            token,
+        };
+    } catch (e: any) {
+        return result.error(res, null, e.message);
+    }
+    return result(res, data);
 }

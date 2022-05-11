@@ -1,16 +1,12 @@
 import { UserDocument } from '../models/user.model';
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
-import { CreateUserInput, FindUserInput } from '../schema/user.schema';
 import USER_CRUD from '../service/user.service';
 
 /**
  * 创建用户
  */
-export async function createUserHandler(
-    req: Request<{}, {}, CreateUserInput['body']>,
-    res: Response
-) {
+export async function createUserHandler(req: Request, res: Response) {
     const [e, user] = await silentHandle(USER_CRUD.create, req.body);
 
     return e ? result.error(res, null, e.message) : result(res, user);

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Authority } from '../../constants/authority';
+import { randomUtil } from '../../utils';
 
 // 模板接口
 export interface UserDocument extends mongoose.Document {
@@ -16,8 +17,16 @@ export interface UserDocument extends mongoose.Document {
 const userSchema = new mongoose.Schema(
     {
         email: { type: String, required: true },
-        avatarPath: { type: String, required: true },
-        nickname: { type: String, required: true },
+        avatarPath: {
+            type: String,
+            required: false,
+            default: randomUtil.avatarPath,
+        },
+        nickname: {
+            type: String,
+            required: false,
+            default: randomUtil.nickname,
+        },
         lv: { type: Number, required: false, default: Authority.login },
     },
     {
