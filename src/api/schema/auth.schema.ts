@@ -14,3 +14,10 @@ export const signSchema = object({
         code: string({ required_error: '缺少验证码' }).min(1),
     }).strict(),
 });
+
+// 获取用户信息
+export const infoSchema = object({
+    query: object({
+        email: string({ required_error: '缺少邮箱' }).email().min(1),
+    }).strict(),
+});

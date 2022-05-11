@@ -114,3 +114,33 @@ export async function signHandler(req: Request, res: Response) {
     }
     return result(res, data);
 }
+
+/**
+ * 获取用户信息
+ */
+export async function infoHandler(req: Request, res: Response) {
+    let data: object;
+    try {
+        // 从上下文获取当前用户email
+        const email = res.locals._context['user-email'];
+        // 根据email查询用户信息
+        let user = await throwHandle(USER_CRUD.findOne, { email });
+        // 从缓存获取token
+        const token = await redisUtils.get(config.auth['token-prefix'] + email);
+        // 获取用户部分属性
+        const { lv, nickname, avatarPath } = user;
+        // 对结果赋值
+        data = {
+            info: {
+                email,
+                lv,
+                nickname,
+                avatarPath,
+            },
+            token,
+        };
+    } catch (e: any) {
+        return result.error(res, null, e.message);
+    }
+    return result(res, data);
+}

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import config from '../../../settings';
 import logger from '../../utils/logger';
 
-async function dbConnect() {
+export default async () => {
     try {
         const connection = await mongoose.connect(config.db.uri, {
             user: config.db.user,
@@ -17,6 +17,4 @@ async function dbConnect() {
         logger.error('Could not connect to db');
         process.exit(1);
     }
-}
-
-export default dbConnect;
+};

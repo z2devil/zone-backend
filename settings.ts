@@ -29,17 +29,10 @@ export default {
         username: 'user@example.com',
         password: '***REMOVED***',
     },
-    // jwt相关
-    jwt: {
-        // 请求头名称
-        header: 'Authorization',
-        // 秘钥
-        secret: '***REMOVED***',
-        // 过期时间
-        expires: '30d',
-    },
     // 认证相关
     auth: {
+        // 请求头名称
+        header: 'authorization',
         // 验证码前缀 在redis中存储数据的key前缀，例：code-user@example.com
         'code-prefix': 'code-',
         // token前缀 在redis中存储数据的key前缀，例：token-1
@@ -56,5 +49,7 @@ export default {
         'token-expire-time': 2592000,
         // token 续期检查时间范围 在token即将过期的一段时间内用户操作了，则给用户的token续期
         'token-detect-scope': 172800,
+        // token秘钥
+        'token-secret': '***REMOVED***',
     },
 };

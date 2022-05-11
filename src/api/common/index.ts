@@ -1,6 +1,6 @@
 import result from './result';
-import dbConnect from './dbConnect';
+import connectDB from './connectDB';
 
-export { result, dbConnect };
+export { result, connectDB };
 export { silentHandle, throwHandle } from './handle';
 export { BaseCrudProvider } from './crudProvider';
