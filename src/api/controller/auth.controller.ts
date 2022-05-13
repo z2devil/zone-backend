@@ -92,7 +92,7 @@ export async function signHandler(req: Request, res: Response) {
         let user = await throwHandle(USER_CRUD.findOne, { email });
         if (!user) user = await throwHandle(USER_CRUD.create, { email });
         // 生成token
-        const token = jwtUtil.create({ email });
+        const token = jwtUtil.create({ email, id: user._id });
         // 将token存入缓存
         await redisUtils.set(config.auth['token-prefix'] + email, token, {
             EX: config.auth['token-expire-time'],
@@ -121,14 +121,14 @@ export async function signHandler(req: Request, res: Response) {
 export async function infoHandler(req: Request, res: Response) {
     let data: object;
     try {
-        // 从上下文获取当前用户email
-        const email = res.locals._context['user-email'];
+        // 从上下文获取当前用户信息
+        const _user = res.locals._context?.user;
         // 根据email查询用户信息
-        let user = await throwHandle(USER_CRUD.findOne, { email });
+        let user = await throwHandle(USER_CRUD.findOne, _user);
+        // 获取用户部分属性
+        const { email, lv, nickname, avatarPath } = user;
         // 从缓存获取token
         const token = await redisUtils.get(config.auth['token-prefix'] + email);
-        // 获取用户部分属性
-        const { lv, nickname, avatarPath } = user;
         // 对结果赋值
         data = {
             info: {

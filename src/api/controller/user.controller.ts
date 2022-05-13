@@ -1,4 +1,3 @@
-import { UserDocument } from '../models/user.model';
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
 import USER_CRUD from '../service/user.service';

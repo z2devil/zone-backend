@@ -1,38 +1,32 @@
 import mongoose from 'mongoose';
+import { BaseDocument, schemaFactory } from './base.model';
+
 import { Authority } from '../../constants/authority';
 import { randomUtil } from '../../utils';
 
 // 模板接口
-export interface UserDocument extends mongoose.Document {
+export interface UserDocument extends BaseDocument {
     email: string;
     avatarPath: string;
     nickname: string;
     lv: number;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date;
 }
 
 // 模板校验规则
-const userSchema = new mongoose.Schema(
-    {
-        email: { type: String, required: true },
-        avatarPath: {
-            type: String,
-            required: false,
-            default: randomUtil.avatarPath,
-        },
-        nickname: {
-            type: String,
-            required: false,
-            default: randomUtil.nickname,
-        },
-        lv: { type: Number, required: false, default: Authority.login },
+const userSchema = schemaFactory({
+    email: { type: String, required: true },
+    avatarPath: {
+        type: String,
+        required: false,
+        default: randomUtil.avatarPath,
     },
-    {
-        timestamps: true,
-    }
-);
+    nickname: {
+        type: String,
+        required: false,
+        default: randomUtil.nickname,
+    },
+    lv: { type: Number, required: false, default: Authority.login },
+});
 
 // 建立索引
 userSchema.index({ email: 1, deletedAt: 1 }, { unique: true });

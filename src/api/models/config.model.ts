@@ -1,14 +1,12 @@
 import mongoose from 'mongoose';
+import { BaseDocument, schemaFactory } from './base.model';
 
-export interface ConfigDocument extends mongoose.Document {
+export interface ConfigDocument extends BaseDocument {
     label: string;
     value: string;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date;
 }
 
-const configSchema = new mongoose.Schema({
+const configSchema = schemaFactory({
     label: { type: String, required: true },
     value: { type: String, required: true },
 });

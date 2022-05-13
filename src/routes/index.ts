@@ -3,6 +3,7 @@ import { result } from '../api/common';
 import user from './user.routes';
 import power from './config.routes';
 import auth from './auth.routes';
+import note from './note.routes';
 
 // 路由配置接口
 interface RouterConf {
@@ -16,12 +17,13 @@ const routerConf: Array<RouterConf> = [
     { path: '/user', router: user },
     { path: '/power', router: power },
     { path: '/auth', router: auth },
+    { path: '/note', router: note },
 ];
 
 function routes(app: Express) {
     // 根目录
     app.get('/', (req: Request, res: Response) =>
-        result(res, { word: 'Hello Shinp!!!' })
+        result(res, { word: 'Hello, welcome to z2zone.' })
     );
 
     routerConf.forEach(conf => app.use(conf.path, conf.router));
