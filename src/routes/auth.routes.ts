@@ -1,11 +1,14 @@
-import { signSchema, infoSchema } from './../api/schema/auth.schema';
+import {
+  signSchema,
+  infoSchema,
+  sendCodeSchema,
+} from './../api/schema/auth.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
-import { sendCodeSchema } from '../api/schema/auth.schema';
 import {
-    signHandler,
-    sendCodeHandler,
-    infoHandler,
+  signHandler,
+  sendCodeHandler,
+  infoHandler,
 } from '../api/controller/auth.controller';
 import { Authority } from '../constants/authority';
 

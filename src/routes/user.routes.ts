@@ -2,8 +2,8 @@ import { Router } from 'express';
 import validate from '../middleware/validate';
 import { createUserSchema, findUserSchema } from '../api/schema/user.schema';
 import {
-    createUserHandler,
-    findUserHandler,
+  createUserHandler,
+  findUserHandler,
 } from '../api/controller/user.controller';
 import { Authority } from '../constants/authority';
 

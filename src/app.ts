@@ -17,7 +17,7 @@ middleware.init(app);
 
 // 启动
 app.listen(config.port, async () => {
-    logger.info(`App is running at http://localhost:${config.port}`);
-    await connectDB();
-    routes(app);
+  logger.info(`App is running at http://localhost:${config.port}`);
+  await connectDB();
+  routes(app);
 });
