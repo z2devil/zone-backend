@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import config from '../../settings';
+import config from '../constant/settings';
 import { jwtUtil } from '../utils';
 import { silentHandle } from '../api/common';
 import { redisUtils } from '../redis';

@@ -1,5 +1,5 @@
 import * as Redis from 'redis';
-import config from '../../settings';
+import config from '../constant/settings';
 
 let client: Redis.RedisClientType;
 

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { result, throwHandle } from '../common';
-import config from '../../../settings';
+import { result, throwHandle } from '../../api/common';
+import config from '../../constant/settings';
 import { redisUtils } from '../../redis';
 import { jwtUtil, randomUtil } from '../../utils';
 import emailer from '../../utils/emailUtil';
-import USER_CRUD from '../service/user.service';
+import USER_CRUD from '../../api/service/user.service';
 
 /**
  * 发送验证码
@@ -61,7 +61,7 @@ export async function signHandler(req: Request, res: Response) {
     // 验证码的key
     const codeKey = config.auth['code-prefix'] + email;
     // 缓存中的验证码
-    let codeCache = await redisUtils.get(codeKey);
+    const codeCache = await redisUtils.get(codeKey);
     // 如果缓存中没有找到记录，返回错误
     if (!codeCache) return result.error(res, null, '验证码过期或错误');
     // 获取验证码和机会次数
@@ -116,7 +116,7 @@ export async function infoHandler(req: Request, res: Response) {
     // 从上下文获取当前用户信息
     const _user = res.locals._context?.user;
     // 根据email查询用户信息
-    let user = await throwHandle(USER_CRUD.findOne, _user);
+    const user = await throwHandle(USER_CRUD.findOne, _user);
     // 获取用户部分属性
     const { email, lv, nickname, avatarPath } = user;
     // 从缓存获取token

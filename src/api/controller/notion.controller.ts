@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { result } from '../common';
+import { result } from '../../api/common';
 // import { Client } from '@notionhq/client';
 import { NotionAPI } from 'notion-client';
 
@@ -18,8 +18,8 @@ export async function findNotionHandler(req: Request, res: Response) {
     authToken:
       '***REMOVED***',
   });
-  const recordMap = await notion.getUsers([
-    'd5199b57-44c4-4111-9787-11f8c7a9e632',
-  ]);
+  const recordMap = await notion.getPage(
+    'd5199b57-44c4-4111-9787-ec92ab830b54441d85007fbcf6af7820'
+  );
   return result(res, recordMap);
 }

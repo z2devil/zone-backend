@@ -1,6 +1,6 @@
 import logger from '../../utils/logger';
 import { Response } from 'express';
-import { Code, codeType, CodeMessage } from '../../constants/code';
+import { Code, codeType, CodeMessage } from '../../constant/code';
 
 interface OptionsType {
   type?: codeType;

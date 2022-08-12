@@ -1,4 +1,5 @@
 import { object, string } from 'zod';
+import { pageSchema } from './common.schema';
 
 // 创建接口
 export const createUserSchema = object({
@@ -11,7 +12,9 @@ export const createUserSchema = object({
 
 // 查找接口
 export const findUserSchema = object({
-  query: object({
-    email: string().email().optional(),
-  }).strict(),
+  query: pageSchema.or(
+    object({
+      email: string().email(),
+    }).strict()
+  ),
 });

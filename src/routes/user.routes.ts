@@ -5,24 +5,24 @@ import {
   createUserHandler,
   findUserHandler,
 } from '../api/controller/user.controller';
-import { Authority } from '../constants/authority';
+import { Authority } from '../constant/authority';
 
 const router = Router();
 
 /**
  * 创建用户
  */
-router.post('/create', validate(createUserSchema), createUserHandler);
+router.post('/', validate(createUserSchema), createUserHandler);
 
 /**
  * 查找用户
  */
-router.get('/find', validate(findUserSchema), findUserHandler);
+router.get('/', validate(findUserSchema), findUserHandler);
 
 /**
  * 删除用户
  */
-router.delete('/remove', validate(findUserSchema), findUserHandler);
+router.delete('/', validate(findUserSchema), findUserHandler);
 
 /**
  * 测试权限

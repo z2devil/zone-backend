@@ -1,6 +1,6 @@
 import express from 'express';
 // 全局配置
-import config from '../settings';
+import config from './constant/settings';
 // 路由
 import routes from './routes';
 // 日志

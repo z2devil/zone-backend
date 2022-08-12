@@ -18,6 +18,8 @@ const validate =
         if (!_user) return result.denied(res, null);
         // 判断用户权限是否足够
         const user = await throwHandle(USER_CRUD.findOne, _user);
+        console.log(user);
+
         if (!user || user.lv < authority) return result.denied(res, null);
       }
       if (schema) {

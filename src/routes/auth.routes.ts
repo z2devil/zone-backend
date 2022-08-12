@@ -1,8 +1,4 @@
-import {
-  signSchema,
-  infoSchema,
-  sendCodeSchema,
-} from './../api/schema/auth.schema';
+import { signSchema, sendCodeSchema } from './../api/schema/auth.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
 import {
@@ -10,7 +6,7 @@ import {
   sendCodeHandler,
   infoHandler,
 } from '../api/controller/auth.controller';
-import { Authority } from '../constants/authority';
+import { Authority } from '../constant/authority';
 
 const router = Router();
 

@@ -2,10 +2,10 @@ import {
   createNoteSchema,
   removeNoteSchema,
   findNoteSchema,
-} from './../api/schema/node.schema';
+} from '../api/schema/note.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
-import { Authority } from '../constants/authority';
+import { Authority } from '../constant/authority';
 import {
   findNoteHandler,
   createNoteHandler,

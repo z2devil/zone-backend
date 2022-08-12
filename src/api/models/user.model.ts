@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { BaseDocument, schemaFactory } from './base.model';
 
-import { Authority } from '../../constants/authority';
+import { Authority } from '../../constant/authority';
 import { randomUtil } from '../../utils';
 
 // 模板接口

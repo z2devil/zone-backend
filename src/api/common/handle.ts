@@ -1,4 +1,5 @@
 async function silentHandle<T, U = Error>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
   fn: Function,
   ...args: Array<unknown>
 ): Promise<[U, null] | [null, T]> {
@@ -14,6 +15,7 @@ async function silentHandle<T, U = Error>(
 }
 
 async function throwHandle(
+  // eslint-disable-next-line @typescript-eslint/ban-types
   fn: Function,
   ...args: Array<unknown>
 ): Promise<any> {

@@ -1,6 +1,6 @@
-import config from '../../settings';
+import config from '../constant/settings';
 
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 export default {
   create: (payload: object) => {
