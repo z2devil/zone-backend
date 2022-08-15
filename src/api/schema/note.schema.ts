@@ -18,6 +18,13 @@ export const createNoteSchema = object({
 // 删除笔记参数
 export const removeNoteSchema = object({
   body: object({
-    id: string({ required_error: '缺少id' }).min(1),
+    _id: string({ required_error: '缺少id' }).min(1),
+  }).strict(),
+});
+
+// 阅读笔记参数
+export const viewNoteSchema = object({
+  query: object({
+    _id: string({ required_error: '缺少id' }).min(1),
   }).strict(),
 });

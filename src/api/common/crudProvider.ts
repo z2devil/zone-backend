@@ -22,6 +22,22 @@ class BaseCrudProviderCls<document, Cdocument> {
   }
 
   /**
+   * 新增或修改
+   */
+  async createOrUpdate(input: DocumentDefinition<Cdocument>) {
+    const result = await this.DBModel.find(input);
+    if (result.length === 0) {
+      const data = await this.DBModel.create(input);
+      return data.toJSON();
+    } else {
+      return await this.DBModel.where(input).updateMany({
+        ...input,
+        isDeleted: false,
+      });
+    }
+  }
+
+  /**
    * 修改
    */
   async update(
@@ -91,6 +107,7 @@ const BaseCrudProvider = function <document, Cdocument>(DBModel: Model<any>) {
 
   return {
     create: CRUD.create.bind(CRUD),
+    createOrUpdate: CRUD.createOrUpdate.bind(CRUD),
     update: CRUD.update.bind(CRUD),
     find: CRUD.find.bind(CRUD),
     findOne: CRUD.findOne.bind(CRUD),

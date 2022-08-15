@@ -1,13 +1,13 @@
 import config from '../constant/settings';
 
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export default {
   create: (payload: object) => {
     return jwt.sign(payload, config.auth['token-secret']);
   },
   verify: (token: string) => {
-    let info: object | null;
+    let info: string | JwtPayload;
     try {
       info = jwt.verify(token, config.auth['token-secret']);
     } catch (e: any) {

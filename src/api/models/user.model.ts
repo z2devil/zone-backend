@@ -14,7 +14,7 @@ export interface UserDocument extends BaseDocument {
 
 // 模板校验规则
 const userSchema = schemaFactory({
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   avatarPath: {
     type: String,
     required: false,
@@ -27,9 +27,6 @@ const userSchema = schemaFactory({
   },
   lv: { type: Number, required: false, default: Authority.login },
 });
-
-// 建立索引
-userSchema.index({ email: 1, deletedAt: 1 }, { unique: true });
 
 // save前置钩子
 userSchema.pre('save', next => {

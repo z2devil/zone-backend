@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
 export interface BaseDocument extends mongoose.Document {
-  createdAt: Number;
-  updatedAt: Number;
-  isDeleted: Boolean;
+  createdAt: number;
+  updatedAt: number;
+  isDeleted: boolean;
 }
 
 export const schemaFactory = (params: object) => {

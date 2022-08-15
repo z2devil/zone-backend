@@ -4,6 +4,9 @@ import { BaseDocument, schemaFactory } from './base.model';
 export interface NoteDocument extends BaseDocument {
   content: string;
   author: mongoose.Schema.Types.ObjectId;
+  views: Array<string>;
+  bannerPath: string;
+  title: string;
 }
 
 const noteSchema = schemaFactory({
@@ -14,6 +17,10 @@ const noteSchema = schemaFactory({
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+  },
+  views: {
+    type: Array,
+    required: false,
   },
 });
 

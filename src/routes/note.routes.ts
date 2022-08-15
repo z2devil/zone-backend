@@ -2,6 +2,7 @@ import {
   createNoteSchema,
   removeNoteSchema,
   findNoteSchema,
+  viewNoteSchema,
 } from '../api/schema/note.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
@@ -10,6 +11,7 @@ import {
   findNoteHandler,
   createNoteHandler,
   removeNoteHandler,
+  viewNoteHandler,
 } from '../api/controller/note.controller';
 
 const router = Router();
@@ -36,5 +38,10 @@ router.delete(
   validate(removeNoteSchema, Authority.admin),
   removeNoteHandler
 );
+
+/**
+ * 阅读笔记
+ */
+router.get('/view', validate(viewNoteSchema), viewNoteHandler);
 
 export default router;

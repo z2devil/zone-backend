@@ -4,7 +4,7 @@ import user from './user.routes';
 import power from './config.routes';
 import auth from './auth.routes';
 import note from './note.routes';
-import notion from './notion.routes';
+import tag from './tag.routes';
 
 // 路由配置接口
 interface RouterConf {
@@ -19,7 +19,7 @@ const routerConf: Array<RouterConf> = [
   { path: '/power', router: power },
   { path: '/auth', router: auth },
   { path: '/note', router: note },
-  { path: '/notion', router: notion },
+  { path: '/tag', router: tag },
 ];
 
 function routes(app: Express) {
