@@ -62,13 +62,18 @@ class BaseCrudProviderCls<document, Cdocument> {
     projection?: any,
     options?: QueryOptions
   ) {
+    const finalOptions = { ...options };
+    if (query.current) {
+      finalOptions.skip = query.current * query.size;
+      finalOptions.limit = query.size;
+    }
     const result = await this.DBModel.find(
       {
         ...query,
         isDeleted: false,
       },
       projection,
-      options
+      finalOptions
     );
     return result && result.map(d => d.toJSON());
   }

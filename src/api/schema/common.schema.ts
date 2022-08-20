@@ -1,4 +1,4 @@
-import { any, number, object, string } from 'zod';
+import { any, object, string } from 'zod';
 
 // 分页参数
 export const pageSchema = object({

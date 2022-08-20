@@ -12,25 +12,69 @@ export default CRUD;
  * 查找笔记
  */
 export const findNotes = async (params: FilterQuery<NoteDocument>) => {
-  const notes = await NoteModel.find(
+  if (params['search']) {
+    params.$or = [
+      {
+        summary: {
+          $regex: new RegExp(params['search']),
+        },
+      },
+      {
+        title: {
+          $regex: new RegExp(params['search']),
+        },
+      },
+    ];
+  }
+
+  const query = NoteModel.find(
     {
       ...params,
       isDeleted: false,
     },
-    ['content', 'createdAt', 'author', 'views'],
-    {
-      sort: { createdAt: -1 },
-    }
-  ).populate('author', ['email', 'nickname', 'lv', 'avatarPath']);
-  return notes.map(note => {
-    return note.toObject({
-      transform(doc, ret) {
-        ret.viewsNum = ret.views?.length;
-        delete ret.views;
-        return ret;
-      },
-    });
+    [
+      'type',
+      'title',
+      'summary',
+      'content',
+      'createdAt',
+      'author',
+      'views',
+      'tags',
+    ]
+  )
+    .populate('author', ['email', 'nickname', 'lv', 'avatarPath'])
+    .skip((params.current - 1) * params.size)
+    .limit(params.size)
+    .sort({ createdAt: -1 });
+
+  const count = NoteModel.count({
+    ...params,
+    isDeleted: false,
   });
+
+  const [notes, dataTotal] = await Promise.all([query, count]);
+
+  return {
+    list: notes.map(note => {
+      return note.toObject({
+        transform(doc, ret) {
+          ret.viewsNum = ret.views?.length;
+          delete ret.views;
+          if (!ret.type) {
+            delete ret.title;
+            delete ret.summary;
+          }
+          return ret;
+        },
+      });
+    }),
+    page: {
+      current: params.current,
+      size: params.size,
+      total: dataTotal,
+    },
+  };
 };
 
 /**
