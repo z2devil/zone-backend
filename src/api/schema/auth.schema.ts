@@ -1,4 +1,4 @@
-import { number, object, string, TypeOf } from 'zod';
+import { object, string } from 'zod';
 
 // 发送验证码接口
 export const sendCodeSchema = object({

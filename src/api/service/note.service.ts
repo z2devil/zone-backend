@@ -27,11 +27,8 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
     ];
   }
 
-  const query = NoteModel.find(
-    {
-      ...params,
-      isDeleted: false,
-    },
+  const [list, page] = await CRUD.findPaginate(
+    params,
     [
       'type',
       'title',
@@ -41,24 +38,23 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
       'author',
       'views',
       'tags',
-    ]
-  )
-    .populate('author', ['email', 'nickname', 'lv', 'avatarPath'])
-    .skip((params.current - 1) * params.size)
-    .limit(params.size)
-    .sort({ createdAt: -1 });
-
-  const count = NoteModel.count({
-    ...params,
-    isDeleted: false,
-  });
-
-  const [notes, dataTotal] = await Promise.all([query, count]);
+      'bannerPath',
+    ],
+    {
+      populate: [
+        {
+          path: 'author',
+          select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+      ],
+      sort: { createdAt: -1 },
+    }
+  );
 
   return {
-    list: notes.map(note => {
-      return note.toObject({
-        transform(doc, ret) {
+    list: list.map(d => {
+      return d.toObject({
+        transform: (doc, ret) => {
           ret.viewsNum = ret.views?.length;
           delete ret.views;
           if (!ret.type) {
@@ -69,11 +65,7 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
         },
       });
     }),
-    page: {
-      current: params.current,
-      size: params.size,
-      total: dataTotal,
-    },
+    page,
   };
 };
 

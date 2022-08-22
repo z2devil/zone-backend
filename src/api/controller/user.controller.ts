@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
-import USER_CRUD from '../service/user.service';
+import USER_CRUD, { findUsers } from '../service/user.service';
 
 /**
  * 创建用户
@@ -14,13 +14,6 @@ export async function createUserHandler(req: Request, res: Response) {
  * 查找用户
  */
 export async function findUserHandler(req: Request, res: Response) {
-  const [e, users] = await silentHandle(
-    USER_CRUD.find,
-    req.query,
-    ['email', 'lv', 'avatarPath', 'nickname', 'createdAt'],
-    {
-      sort: { createdAt: -1 },
-    }
-  );
+  const [e, users] = await silentHandle(findUsers, req.query);
   return e ? result.error(res, null, e.message) : result(res, users);
 }

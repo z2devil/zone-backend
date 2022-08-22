@@ -2,8 +2,8 @@ import { object, string, discriminatedUnion, literal, array, union } from 'zod';
 import { NoteType } from '../models/note.model';
 import { pageSchema } from './common.schema';
 
-export // 查找笔记参数
-const findNoteSchema = object({
+// 查找笔记参数
+export const findNoteSchema = object({
   query: union([
     pageSchema
       .extend({
@@ -12,7 +12,8 @@ const findNoteSchema = object({
           .transform<number>(i => {
             return Number.parseInt(i);
           })
-          .refine(i => NoteType[i], { message: '搜索类型错误' }),
+          .refine(i => NoteType[i], { message: '搜索类型错误' })
+          .optional(),
       })
       .strict(),
     object({

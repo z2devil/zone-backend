@@ -7,9 +7,9 @@ import {
 } from 'mongoose';
 
 class BaseCrudProviderCls<document, Cdocument> {
-  private DBModel: Model<any>;
+  private DBModel: Model<document>;
 
-  constructor(DBModel: Model<any>) {
+  constructor(DBModel: Model<document>) {
     this.DBModel = DBModel;
   }
 
@@ -25,7 +25,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 新增或修改
    */
   async createOrUpdate(input: DocumentDefinition<Cdocument>) {
-    const result = await this.DBModel.find(input);
+    const result = await this.DBModel.find(input as FilterQuery<document>);
     if (result.length === 0) {
       const data = await this.DBModel.create(input);
       return data.toJSON();
@@ -67,7 +67,11 @@ class BaseCrudProviderCls<document, Cdocument> {
       finalOptions.skip = query.current * query.size;
       finalOptions.limit = query.size;
     }
-    const result = await this.DBModel.find(
+    const result = await this.DBModel.find<
+      document & {
+        _id: string;
+      }
+    >(
       {
         ...query,
         isDeleted: false,
@@ -75,7 +79,7 @@ class BaseCrudProviderCls<document, Cdocument> {
       projection,
       finalOptions
     );
-    return result && result.map(d => d.toJSON());
+    return result;
   }
 
   /**
@@ -86,7 +90,11 @@ class BaseCrudProviderCls<document, Cdocument> {
     projection?: any,
     options?: QueryOptions
   ) {
-    return await this.DBModel.findOne(
+    return await this.DBModel.findOne<
+      document & {
+        _id: string;
+      }
+    >(
       {
         ...query,
         isDeleted: false,
@@ -94,6 +102,46 @@ class BaseCrudProviderCls<document, Cdocument> {
       projection,
       options
     );
+  }
+
+  /**
+   * 分页查询
+   */
+  async findPaginate(
+    params: FilterQuery<document>,
+    projection?: any,
+    options?: QueryOptions
+  ) {
+    const query = this.DBModel.find<
+      document & {
+        _id: string;
+      }
+    >(
+      {
+        ...params,
+        isDeleted: false,
+      },
+      projection,
+      options
+    )
+      .skip((params.current - 1) * params.size)
+      .limit(params.size);
+
+    const count = this.DBModel.count({
+      ...params,
+      isDeleted: false,
+    });
+
+    const [data, dataTotal] = await Promise.all([query, count]);
+
+    return [
+      data,
+      {
+        current: params.current,
+        size: params.size,
+        total: dataTotal,
+      },
+    ] as const;
   }
 
   /**
@@ -107,7 +155,9 @@ class BaseCrudProviderCls<document, Cdocument> {
   }
 }
 
-const BaseCrudProvider = function <document, Cdocument>(DBModel: Model<any>) {
+const BaseCrudProvider = function <document, Cdocument>(
+  DBModel: Model<document>
+) {
   const CRUD = new BaseCrudProviderCls<document, Cdocument>(DBModel);
 
   return {
@@ -116,6 +166,7 @@ const BaseCrudProvider = function <document, Cdocument>(DBModel: Model<any>) {
     update: CRUD.update.bind(CRUD),
     find: CRUD.find.bind(CRUD),
     findOne: CRUD.findOne.bind(CRUD),
+    findPaginate: CRUD.findPaginate.bind(CRUD),
     delete: CRUD.delete.bind(CRUD),
   };
 };
