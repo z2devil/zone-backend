@@ -10,13 +10,13 @@ const CRUD = BaseCrudProvider<TagDocument, Omit<TagDocument, 'createdAt'>>(
  * 查找标签
  */
 export const findTags = async (params: FilterQuery<TagDocument>) => {
-  const [list, page] = await CRUD.findPaginate(params, ['label'], {
+  const [list, total] = await CRUD.findPaginate(params, ['label'], {
     sort: { createdAt: -1 },
   });
 
   return {
+    total,
     list,
-    page,
   };
 };
 

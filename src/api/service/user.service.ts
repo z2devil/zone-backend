@@ -10,7 +10,7 @@ const CRUD = BaseCrudProvider<UserDocument, Omit<UserDocument, 'createdAt'>>(
  * 查找标签
  */
 export const findUsers = async (params: FilterQuery<UserDocument>) => {
-  const [list, page] = await CRUD.findPaginate(
+  const [list, total] = await CRUD.findPaginate(
     params,
     ['email', 'lv', 'avatarPath', 'nickname', 'createdAt'],
     {
@@ -19,8 +19,8 @@ export const findUsers = async (params: FilterQuery<UserDocument>) => {
   );
 
   return {
+    total,
     list,
-    page,
   };
 };
 

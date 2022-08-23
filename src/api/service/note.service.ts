@@ -27,7 +27,7 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
     ];
   }
 
-  const [list, page] = await CRUD.findPaginate(
+  const [list, total] = await CRUD.findPaginate(
     params,
     [
       'type',
@@ -52,6 +52,7 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
   );
 
   return {
+    total,
     list: list.map(d => {
       return d.toObject({
         transform: (doc, ret) => {
@@ -65,7 +66,6 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
         },
       });
     }),
-    page,
   };
 };
 

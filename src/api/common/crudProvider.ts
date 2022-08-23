@@ -134,14 +134,7 @@ class BaseCrudProviderCls<document, Cdocument> {
 
     const [data, dataTotal] = await Promise.all([query, count]);
 
-    return [
-      data,
-      {
-        current: params.current,
-        size: params.size,
-        total: dataTotal,
-      },
-    ] as const;
+    return [data, dataTotal] as const;
   }
 
   /**
