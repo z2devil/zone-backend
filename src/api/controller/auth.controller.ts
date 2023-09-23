@@ -41,8 +41,8 @@ export async function sendCodeHandler(req: Request, res: Response) {
   );
   // 发送邮箱验证码
   emailer.send(
-    email + '',
-    '【验证码】z2devil个人博客',
+    String(email),
+    `【${codeValue}】z2devil个人博客的验证码`,
     `您的验证码为：${codeValue}, ${
       config.auth['code-expire-time'] / 60
     }分钟内有效。`

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
 import { result, throwHandle } from '../api/common';
-import { Authority } from '../constants/authority';
+import { Authority } from '../constant/authority';
 import USER_CRUD from '../api/service/user.service';
 
 /**

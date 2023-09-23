@@ -25,5 +25,6 @@ module.exports = {
     'no-var': 'error',
     'no-undef': 0,
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+    '@typescript-eslint/no-explicit-any': 0,
   },
 };

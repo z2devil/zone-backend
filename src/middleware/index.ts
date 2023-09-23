@@ -1,12 +1,14 @@
 import { Express } from 'express';
 import express from 'express';
-import responseHeader from './responseHeader';
+import limit from './limit';
 import context from './context';
+import response from './response';
 
 export default {
   init: (app: Express) => {
     app.use(express.json());
+    app.use(limit);
     app.use(context);
-    app.use(responseHeader);
+    app.use(response);
   },
 };

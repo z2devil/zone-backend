@@ -5,10 +5,9 @@ import { silentHandle } from '../api/common';
 import { redisUtils } from '../redis';
 
 /**
- *  上下文管理
+ *  上下文处理中间件
  */
-export default async (req: Request, res: Response, next: NextFunction) => {
-  const context: any = {};
+const context = async (req: Request, res: Response, next: NextFunction) => {
   type TokenType = string | undefined;
   // 从请求头获取token
   const token = req.headers[config.auth.header] as TokenType;
@@ -24,7 +23,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     const redisToken = await redisUtils.get(tokenKey);
     // 缓存匹配时
     if (redisToken && redisToken === token) {
-      context.user = data;
+      const context = {
+        user: data,
+      };
       // 将上下文存入res.locals
       res.locals._context = context;
       // 获取缓存ttl
@@ -37,3 +38,5 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   }
   next();
 };
+
+export default context;

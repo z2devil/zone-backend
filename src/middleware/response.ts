@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
 /**
- * 响应头配置
+ * 响应头处理中间件
  */
-const responseHeader = (req: Request, res: Response, next: NextFunction) => {
+const response = (req: Request, res: Response, next: NextFunction) => {
   const { origin, Origin, referer, Referer } = req.headers;
 
   // 若没有手动设置，则为通配符
@@ -12,7 +12,7 @@ const responseHeader = (req: Request, res: Response, next: NextFunction) => {
   // 允许请求源
   res.header('Access-Control-Allow-Origin', allowOrigin);
   // 允许头部字段
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   // 允许公开的头部字段
   res.header('Access-Control-Expose-Headers', 'Content-Disposition');
   // 允许的请求方式
@@ -28,4 +28,4 @@ const responseHeader = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default responseHeader;
+export default response;

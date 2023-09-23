@@ -3,7 +3,7 @@ import config from '../constant/settings';
 
 let client: Redis.RedisClientType;
 
-export default async () => {
+const getRedisClient = async () => {
   if (!client) {
     client = Redis.createClient({
       url: `redis://:${config.redis.password}@${config.redis.host}:${config.redis.port}`,
@@ -16,3 +16,5 @@ export default async () => {
   }
   return client;
 };
+
+export default getRedisClient;
