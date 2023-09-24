@@ -1,0 +1,7 @@
+{
+  "name": "Zone blog API Workflow",
+  "description": "Zone 博客的后端服务工作流",
+  "iconName": "octicon sun",
+  "categories": ["Typescript"],
+  "filePatterns": ["package.json$", "^Dockerfile", "README.md$"]
+}
