@@ -13,6 +13,8 @@ interface RouterConf {
   meta?: unknown;
 }
 
+const ROOT_PATH = '/api';
+
 // 路由配置
 const routerConf: Array<RouterConf> = [
   { path: '/user', router: user },
@@ -24,11 +26,11 @@ const routerConf: Array<RouterConf> = [
 
 function routes(app: Express) {
   // 根目录
-  app.get('/', (req: Request, res: Response) =>
+  app.get(ROOT_PATH + '/', (req: Request, res: Response) =>
     result(res, { word: 'Hello, welcome to z2zone.' })
   );
 
-  routerConf.forEach(conf => app.use(conf.path, conf.router));
+  routerConf.forEach(conf => app.use(ROOT_PATH + conf.path, conf.router));
 }
 
 export default routes;
