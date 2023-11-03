@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
       - name: Build and push Docker image
         run: ｜
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
