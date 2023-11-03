@@ -35,3 +35,8 @@ typescript、express、mysql、redis
 2. 自定义关联(集合)查询（注解方式）
 3. 统一返回数据结构
 4. redis 缓存
+
+
+### 自动化
+
+1. CI/CD
