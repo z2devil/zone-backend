@@ -22,7 +22,7 @@ jobs:
           docker push z2devils/zone-backend
 
       - name: SSH into host
-        run: ssh root@***REMOVED*** -p 22
+        run: ssh -T root@***REMOVED*** -p 22
 
       - name: Pull image and run container
         run: |
