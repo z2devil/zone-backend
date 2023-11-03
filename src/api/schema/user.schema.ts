@@ -18,3 +18,11 @@ export const findUserSchema = object({
     }).strict()
   ),
 });
+
+// 更新接口
+export const updateUserSchema = object({
+  body: object({
+    avatarPath: string().optional(),
+    nickname: string().optional(),
+  }).strict(),
+});

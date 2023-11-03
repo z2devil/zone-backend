@@ -1,9 +1,12 @@
-async function silentHandle<T, U = Error>(
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  fn: Function,
-  ...args: Array<unknown>
-): Promise<[U, null] | [null, T]> {
-  let result: [U, null] | [null, T];
+async function silentHandle<
+  Args extends Array<unknown>,
+  Res,
+  Err extends Error
+>(
+  fn: (...args: Args) => Promise<Res>,
+  ...args: Args
+): Promise<[Err, null] | [null, Res]> {
+  let result: [Err, null] | [null, Res];
 
   try {
     result = [null, await fn(...args)];
@@ -14,12 +17,11 @@ async function silentHandle<T, U = Error>(
   return result;
 }
 
-async function throwHandle(
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  fn: Function,
-  ...args: Array<unknown>
-): Promise<any> {
-  let result: any;
+async function throwHandle<Args extends Array<unknown>, Res>(
+  fn: (...args: Args) => Promise<Res>,
+  ...args: Args
+): Promise<Res> {
+  let result: Res;
 
   try {
     result = await fn(...args);
