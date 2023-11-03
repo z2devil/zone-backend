@@ -45,7 +45,8 @@ class BaseCrudProviderCls<document, Cdocument> {
     update: UpdateQuery<document>,
     options?: QueryOptions
   ) {
-    return await this.DBModel.where(query).updateMany(
+    return await this.DBModel.updateMany(
+      { ...query, isDeleted: false },
       {
         ...update,
         updatedAt: Date.now(),
