@@ -20,6 +20,11 @@ jobs:
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
           docker build -t z2devils/zone-backend .
           docker push z2devils/zone-backend
+      - name: config ssh
+        run: |
+          mkdir -p ~/.ssh
+          cp id_rsa ~/.ssh/id_rsa
+          cp known_hosts ~/.ssh/known_hosts
 
       - name: SSH into host
         run: ssh -T root@***REMOVED*** -p 22
@@ -28,4 +33,5 @@ jobs:
         run: |
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
           docker pull z2devils/zone-backend .
-          docker run --name z2devils/zone-backend -p 3000:3000 -d -restart=always z2devils/zone-backend
+          docker stop z2devils/zone-backend && docker rm z2devils/zone-backend
+          docker run --name z2devils/zone-backend -d -p 8080:3000 z2devils/zone-backend
