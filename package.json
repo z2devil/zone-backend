@@ -39,18 +39,12 @@
     "lint-staged": "^13.2.2",
     "ts-node-dev": "^1.1.8"
   },
-  "lint-staged": {
-    "./**/*.{js,ts,jsx,tsx}": [
-      "eslint --fix --ext .js,.jsx,.ts,.tsx",
-      "prettier --write"
-    ]
-  },
   "config": {
+    "commitizen": {
+      "path": "node_modules/z2-cz-customizable"
+    },
     "cz-customizable": {
       "config": ".cz-config.json"
-    },
-    "commitizen": {
-      "path": "./node_modules/z2-cz-customizable"
     }
   }
 }
