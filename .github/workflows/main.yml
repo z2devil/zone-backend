@@ -36,6 +36,6 @@ jobs:
           docker pull z2devils/zone-backend
           docker stop zone-backend
           docker rm zone-backend
-          docker run --name zone-backend --rm -d -p 8080:3000 z2devils/zone-backend
+          docker run --name zone-backend -d -p 3000:3000 z2devils/zone-backend
         env:
           CONTAINER_NAME: zone-backend
