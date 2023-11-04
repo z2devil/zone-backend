@@ -34,9 +34,8 @@ jobs:
         run: |
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
           docker pull z2devils/zone-backend
-          if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-            docker stop zone-backend && docker rm zone-backend
-          fi
-          docker run --name zone-backend -d -p 8080:3000 z2devils/zone-backend
+          docker stop zone-backend
+          docker rm zone-backend
+          docker run --name zone-backend --rm -d -p 8080:3000 z2devils/zone-backend
         env:
           CONTAINER_NAME: zone-backend
