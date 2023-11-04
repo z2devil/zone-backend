@@ -36,14 +36,12 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_IMAGE_NAME }}:latest
 
-      - name: SSH Command
-        uses: D3rHase/ssh-command-action@v0.2.2
+      - name: SSH to server
+        uses: nekiro/ssh-job@main
         with:
           host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.PRIVATE_KEY }}
           user: ${{ secrets.SSH_USER }}
-          private_key: ${ {secrets.PRIVATE_KEY }}
-          host_fingerprint: ${{ secrets.PUBLIC_KEY }}
           command: |
             docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_IMAGE_NAME }}
