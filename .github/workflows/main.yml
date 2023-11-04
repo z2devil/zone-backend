@@ -33,6 +33,6 @@ jobs:
       - name: Pull image and run container
         run: |
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
-          docker pull z2devils/zone-backend .
+          docker pull z2devils/zone-backend
           docker stop z2devils/zone-backend && docker rm z2devils/zone-backend
           docker run --name z2devils/zone-backend -d -p 8080:3000 z2devils/zone-backend
