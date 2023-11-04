@@ -25,6 +25,7 @@ jobs:
           mkdir -p ~/.ssh
           cp id_rsa ~/.ssh/id_rsa
           cp known_hosts ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_rsa
 
       - name: SSH into host
         run: ssh -T root@***REMOVED*** -p 22
