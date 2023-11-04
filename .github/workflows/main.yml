@@ -19,30 +19,35 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
-          docker build -t z2devils/zone-backend .
-          docker push z2devils/zone-backend
+          docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
+          docker build -t ${{secrets.DOCKER_IMAGE_NAME}} .
+          docker push ${{secrets.DOCKER_IMAGE_NAME}}
 
-      - name: SSH connection
-        run: |
-          mkdir -p ~/.ssh
-          cp id_rsa ~/.ssh/id_rsa
-          cp known_hosts ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/id_rsa
-          ssh -T root@***REMOVED*** -p 22
+      - name: SSH Command
+        uses: D3rHase/ssh-command-action@v0.2.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          port: ${{secrets.SSH_PORT}}
+          user: ${{secrets.SSH_USER}}
+          private_key: ${{secrets.PRIVATE_KEY}}
+          host_fingerprint: ${{secrets.PUBLIC_KEY}}
+          command: |
+            docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
+            docker pull ${{secrets.DOCKER_IMAGE_NAME}}
+            docker run --name ${{secrets.DOCKER_CONTAINER_NAME}} -d -p 3000:3000 ${{secrets.DOCKER_IMAGE_NAME}}
 
-      - name: Check Docker image
-        id: check
-        run: echo "exist=$((docker images -q z2devils/zone-backend | wc -l) > 0))" >> $GITHUB_OUTPUT
+      # - name: Check Docker image
+      #   id: check
+      #   run: echo "exist=$((docker images -q ${{secrets.DOCKER_IMAGE_NAME}} | wc -l) > 0))" >> $GITHUB_OUTPUT
 
-      - name: Stop and remove Docker image
-        if: steps.check.outputs.exist == 'true'
-        run: |
-          docker stop zone-backend
-          docker rm zone-backend
+      # - name: Stop and remove Docker image
+      #   if: steps.check.outputs.exist == 'true'
+      #   run: |
+      #     docker stop ${{secrets.DOCKER_CONTAINER_NAME}}
+      #     docker rm ${{secrets.DOCKER_CONTAINER_NAME}}
 
-      - name: Pull and run Docker image
-        run: |
-          docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
-          docker pull z2devils/zone-backend
-          docker run --name zone-backend -d -p 3000:3000 z2devils/zone-backend
+      # - name: Pull and run Docker image
+      #   run: |
+      #     docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
+      #     docker pull ${{secrets.DOCKER_IMAGE_NAME}}
+      #     docker run --name ${{secrets.DOCKER_CONTAINER_NAME}} -d -p 3000:3000 ${{secrets.DOCKER_IMAGE_NAME}}
