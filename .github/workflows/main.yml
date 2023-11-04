@@ -31,10 +31,18 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh -T root@***REMOVED*** -p 22
 
+      - name: Check Docker image
+        id: check
+        run: echo "exist=$((docker images -q z2devils/zone-backend | wc -l) > 0))" >> $GITHUB_OUTPUT
+
+      - name: Stop and remove Docker image
+        if: steps.check.outputs.exist == 'true'
+        run: |
+          docker stop zone-backend
+          docker rm zone-backend
+
       - name: Pull and run Docker image
         run: |
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
           docker pull z2devils/zone-backend
-          docker stop zone-backend
-          docker rm zone-backend
           docker run --name zone-backend -d -p 3000:3000 z2devils/zone-backend
