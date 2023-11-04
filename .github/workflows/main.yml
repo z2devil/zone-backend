@@ -28,10 +28,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: SSH into host
-        run: ssh -T root@***REMOVED*** -p 22
-
-      - name: Pull image and run container
         run: |
+          ssh -T root@***REMOVED*** -p 22
           docker login -u z2devils -p dckr_pat_b6lEaAmMr2P5Qp_2zeEoxE3XacM
           docker pull z2devils/zone-backend
           docker stop z2devils/zone-backend && docker rm z2devils/zone-backend
