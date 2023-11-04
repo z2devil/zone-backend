@@ -40,8 +40,8 @@ jobs:
         uses: nekiro/ssh-job@main
         with:
           host: ${{ secrets.SSH_HOST }}
-          key: ${{ secrets.PRIVATE_KEY }}
           user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
           command: |
             docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_IMAGE_NAME }}
