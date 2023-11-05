@@ -10,6 +10,7 @@ import middleware from './middleware';
 // mongodb
 import { connectDB } from './api/common';
 
+// 创建 express 实例
 const app = express();
 
 // 挂载中间件

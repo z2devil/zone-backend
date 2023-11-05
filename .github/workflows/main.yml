@@ -43,22 +43,5 @@ jobs:
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.PRIVATE_KEY }}
           command: |
-            docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_IMAGE_NAME }}
-            docker run --name ${{ secrets.DOCKER_CONTAINER_NAME }} -d -p 3000:3000 ${{ secrets.DOCKER_IMAGE_NAME }}
-
-      # - name: Check Docker image
-      #   id: check
-      #   run: echo "exist=$((docker images -q ${{secrets.DOCKER_IMAGE_NAME}} | wc -l) > 0))" >> $GITHUB_OUTPUT
-
-      # - name: Stop and remove Docker image
-      #   if: steps.check.outputs.exist == 'true'
-      #   run: |
-      #     docker stop ${{secrets.DOCKER_CONTAINER_NAME}}
-      #     docker rm ${{secrets.DOCKER_CONTAINER_NAME}}
-
-      # - name: Pull and run Docker image
-      #   run: |
-      #     docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
-      #     docker pull ${{secrets.DOCKER_IMAGE_NAME}}
-      #     docker run --name ${{secrets.DOCKER_CONTAINER_NAME}} -d -p 3000:3000 ${{secrets.DOCKER_IMAGE_NAME}}
+            cd /root/marchsoft/project
+            docker-compose up -d
