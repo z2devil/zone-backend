@@ -45,7 +45,7 @@ jobs:
           command: |
             docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_IMAGE_NAME }}
-            docker run --name ${{ secrets.DOCKER_CONTAINER_NAME }} -d -p 3000:3000 ${{ secrets.DOCKER_IMAGE_NAME }}
+            docker run --name ${{ secrets.DOCKER_CONTAINER_NAME }} -d ${{ secrets.DOCKER_IMAGE_NAME }}
 
       # - name: Check Docker image
       #   id: check
