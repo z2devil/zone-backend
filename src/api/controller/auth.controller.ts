@@ -82,7 +82,10 @@ export async function signHandler(req: Request, res: Response) {
     await redisUtils.del(codeKey);
     // 根据邮箱查询用户，如果用户不存在则注册用户
     let user = await throwHandle(USER_CRUD.findOne, { email });
-    if (!user) user = await throwHandle(USER_CRUD.create, { email });
+    if (!user)
+      user = await throwHandle(USER_CRUD.create, {
+        email,
+      });
     // 生成token
     const token = jwtUtil.create({ email, id: user._id });
     // 将token存入缓存
@@ -117,6 +120,7 @@ export async function infoHandler(req: Request, res: Response) {
     const _user = res.locals._context?.user;
     // 根据email查询用户信息
     const user = await throwHandle(USER_CRUD.findOne, _user);
+    if (!user) return result.error(res, null, '用户不存在');
     // 获取用户部分属性
     const { email, lv, nickname, avatarPath } = user;
     // 从缓存获取token

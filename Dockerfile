@@ -5,8 +5,9 @@ WORKDIR /app
 COPY . /app
 
 RUN npm i -g pnpm \
-&& pnpm install
+&& pnpm install \
+&& pnpm run build
 
 EXPOSE 3000
 
-ENTRYPOINT [ "npm", "run", "dev" ]
+ENTRYPOINT [ "npm", "run", "start" ]

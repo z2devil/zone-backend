@@ -30,7 +30,6 @@ const userSchema = schemaFactory({
 
 // save前置钩子
 userSchema.pre('save', next => {
-  console.log('save pre 触发');
   next();
 });
 

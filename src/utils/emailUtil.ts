@@ -3,8 +3,7 @@ import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: config.mail.host,
-  port: '465',
-  secureConnection: true,
+  port: 465,
   secure: true,
   auth: { user: config.mail.username, pass: config.mail.password },
 });

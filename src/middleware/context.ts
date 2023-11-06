@@ -8,16 +8,18 @@ import { redisUtils } from '../redis';
  *  上下文处理中间件
  */
 const context = async (req: Request, res: Response, next: NextFunction) => {
-  type TokenType = string | undefined;
   // 从请求头获取token
-  const token = req.headers[config.auth.header] as TokenType;
+  const token = req.headers[config.auth.header];
+  if (!token) {
+    return next();
+  }
   // 校验token
-  const [e, data] = await silentHandle<{ email: string; id: string }>(
+  const [e, data] = await silentHandle(
     jwtUtil.verify,
-    token
+    Array.isArray(token) ? token[0] : token
   );
   // 校验成功时
-  if (!e && data && data.id && data.email) {
+  if (!e && data && typeof data !== 'string' && data.id && data.email) {
     // email存在时
     const tokenKey = config.auth['token-prefix'] + data.email;
     const redisToken = await redisUtils.get(tokenKey);

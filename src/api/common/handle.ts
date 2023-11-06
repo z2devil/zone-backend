@@ -3,7 +3,7 @@ async function silentHandle<
   Res,
   Err extends Error
 >(
-  fn: (...args: Args) => Promise<Res>,
+  fn: (...args: Args) => Promise<Res> | Res,
   ...args: Args
 ): Promise<[Err, null] | [null, Res]> {
   let result: [Err, null] | [null, Res];
