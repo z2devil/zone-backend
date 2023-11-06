@@ -16,15 +16,17 @@ class BaseCrudProviderCls<document, Cdocument> {
   /**
    * 新增
    */
-  async create(input: DocumentDefinition<Cdocument>) {
+  async create(input: Partial<DocumentDefinition<Cdocument>>) {
     const data = await this.DBModel.create(input);
-    return data.toJSON();
+    return data.toJSON() as document & {
+      _id: string;
+    };
   }
 
   /**
    * 新增或修改
    */
-  async createOrUpdate(input: DocumentDefinition<Cdocument>) {
+  async createOrUpdate(input: Partial<DocumentDefinition<Cdocument>>) {
     const result = await this.DBModel.find(input as FilterQuery<document>);
     if (result.length === 0) {
       const data = await this.DBModel.create(input);

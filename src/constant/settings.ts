@@ -1,6 +1,6 @@
 export default {
   // 端口号
-  port: 3000,
+  port: 2333,
   // 数据库相关
   db: {
     uri: 'mongodb://***REMOVED***:27017/blog',
