@@ -4,10 +4,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN npm i -g pnpm \
-&& npm install -g typescript \
-&& pnpm install \
-&& pnpm run build
+RUN npm install \
+&& npm run build
 
 EXPOSE 3000
 
