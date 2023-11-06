@@ -17,10 +17,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 新增
    */
   async create(input: Partial<DocumentDefinition<Cdocument>>) {
-    const data = await this.DBModel.create(input);
-    return data.toJSON() as document & {
-      _id: string;
-    };
+    return await this.DBModel.create(input);
   }
 
   /**
@@ -29,8 +26,7 @@ class BaseCrudProviderCls<document, Cdocument> {
   async createOrUpdate(input: Partial<DocumentDefinition<Cdocument>>) {
     const result = await this.DBModel.find(input as FilterQuery<document>);
     if (result.length === 0) {
-      const data = await this.DBModel.create(input);
-      return data.toJSON();
+      return await this.DBModel.create(input);
     } else {
       return await this.DBModel.where(input).updateMany({
         ...input,
