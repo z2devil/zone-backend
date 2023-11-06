@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . /app
 
 RUN npm i -g pnpm \
+&& npm install -g typescript \
 && pnpm install \
 && pnpm run build
 
