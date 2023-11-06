@@ -7,6 +7,6 @@ COPY . /app
 RUN npm install \
 && npm run build
 
-EXPOSE 3000
+EXPOSE 2333
 
 ENTRYPOINT [ "npm", "run", "start" ]
