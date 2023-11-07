@@ -82,16 +82,21 @@ export async function signHandler(req: Request, res: Response) {
     await redisUtils.del(codeKey);
     // 根据邮箱查询用户，如果用户不存在则注册用户
     let user = await throwHandle(USER_CRUD.findOne, { email });
-    if (!user)
+    if (!user) {
       user = await throwHandle(USER_CRUD.create, {
         email,
       });
-    // 生成token
-    const token = jwtUtil.create({ email, id: user._id });
-    // 将token存入缓存
-    await redisUtils.set(config.auth['token-prefix'] + email, token, {
-      EX: config.auth['token-expire-time'],
-    });
+    }
+    // 从缓存获取 token
+    let token = await redisUtils.get(config.auth['token-prefix'] + email);
+    if (!token) {
+      // 生成token
+      token = jwtUtil.create({ email, id: user._id });
+      // 将token存入缓存
+      await redisUtils.set(config.auth['token-prefix'] + email, token, {
+        EX: config.auth['token-expire-time'],
+      });
+    }
     // 获取用户部分属性
     const { lv, nickname, avatarPath } = user;
     // 对结果赋值
