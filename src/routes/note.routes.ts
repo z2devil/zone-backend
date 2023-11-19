@@ -3,6 +3,8 @@ import {
   removeNoteSchema,
   findNoteSchema,
   viewNoteSchema,
+  updateNoteSchema,
+  findNotesSchema,
 } from '../api/schema/note.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
@@ -12,6 +14,8 @@ import {
   createNoteHandler,
   removeNoteHandler,
   viewNoteHandler,
+  updateNoteHandler,
+  findNotesHandler,
 } from '../api/controller/note.controller';
 
 const router = Router();
@@ -19,7 +23,12 @@ const router = Router();
 /**
  * 查找笔记
  */
-router.get('/', validate(findNoteSchema), findNoteHandler);
+router.get('/:_id', validate(findNoteSchema), findNoteHandler);
+
+/**
+ * 查找笔记列表
+ */
+router.get('/', validate(findNotesSchema), findNotesHandler);
 
 /**
  * 发表笔记
@@ -43,5 +52,10 @@ router.delete(
  * 阅读笔记
  */
 router.get('/view', validate(viewNoteSchema), viewNoteHandler);
+
+/**
+ * 修改笔记
+ */
+router.put('/', validate(updateNoteSchema, Authority.admin), updateNoteHandler);
 
 export default router;

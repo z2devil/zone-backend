@@ -44,6 +44,5 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           command: |
             cd /root/marchsoft/project
-            docker-compose down
             docker-compose pull
             docker-compose up -d
