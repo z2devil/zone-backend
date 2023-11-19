@@ -9,7 +9,94 @@ const CRUD = BaseCrudProvider<NoteDocument, Omit<NoteDocument, 'createdAt'>>(
 export default CRUD;
 
 /**
+ * 发表笔记
+ */
+export const createNote = async (params: Partial<NoteDocument>) => {
+  const { _id } = await NoteModel.create(params);
+  const note = await NoteModel.findOne(
+    {
+      _id,
+    },
+    [
+      'type',
+      'title',
+      'summary',
+      'content',
+      'createdAt',
+      'author',
+      'views',
+      'tags',
+      'bannerPath',
+    ],
+    {
+      populate: [
+        {
+          path: 'author',
+          select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+      ],
+      sort: { createdAt: -1 },
+    }
+  );
+  return note?.toObject({
+    transform: (doc, ret) => {
+      ret.viewsNum = ret.views?.length;
+      delete ret.views;
+      if (!ret.type) {
+        delete ret.title;
+        delete ret.summary;
+      }
+      return ret;
+    },
+  });
+};
+
+/**
  * 查找笔记
+ */
+export const findNote = async (params: FilterQuery<NoteDocument>) => {
+  const note = await NoteModel.findOne(
+    {
+      ...params,
+      isDeleted: false,
+    },
+    [
+      'type',
+      'title',
+      'summary',
+      'content',
+      'createdAt',
+      'author',
+      'views',
+      'tags',
+      'bannerPath',
+    ],
+    {
+      populate: [
+        {
+          path: 'author',
+          select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+      ],
+      sort: { createdAt: -1 },
+    }
+  );
+
+  return note?.toObject({
+    transform: (doc, ret) => {
+      ret.viewsNum = ret.views?.length;
+      delete ret.views;
+      if (!ret.type) {
+        delete ret.title;
+        delete ret.summary;
+      }
+      return ret;
+    },
+  });
+};
+
+/**
+ * 查找笔记列表
  */
 export const findNotes = async (params: FilterQuery<NoteDocument>) => {
   if (params['search']) {

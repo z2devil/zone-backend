@@ -1,59 +1,81 @@
+import {
+  RESPONSE_CODE_MAP,
+  RESPONSE_MESSAGE_MAP,
+  ResponseType,
+} from '../../constant/code';
 import logger from '../../utils/logger';
 import { Response } from 'express';
-import { Code, codeType, CodeMessage } from '../../constant/code';
 
-interface OptionsType {
-  type?: codeType;
-  status?: number;
+interface IOptions {
+  code?: number;
   message?: unknown;
 }
 
-interface SendResType {
+interface IResponse {
   code: number;
   data: unknown;
   message?: unknown;
 }
 
-function result(res: Response, data: unknown, options?: OptionsType) {
-  options = Object.assign({ type: Code[200] }, options || {});
-  const { type, status, message } = options;
+interface IResult {
+  (res: Response, data: unknown, options?: IOptions): Response;
+  error(res: Response, data: unknown, message?: unknown): Response;
+  denied(res: Response, data: unknown): Response;
+  unauthorized(res: Response, data: unknown): Response;
+}
 
-  let resStatus = status;
+/**
+ * 获取响应结果
+ * @param res 响应对象
+ * @param data 响应数据
+ * @param options 响应配置
+ * @returns 响应结果
+ */
+const result: IResult = (
+  res: Response,
+  data: unknown,
+  options: IOptions = {}
+) => {
+  const { code = RESPONSE_CODE_MAP[ResponseType.SUCCESS], message } = options;
 
-  if (resStatus === undefined) {
-    resStatus = Code[200] ? 200 : 409;
-  }
+  const status = RESPONSE_CODE_MAP[ResponseType.SUCCESS];
 
-  const sendRes: SendResType = {
-    code: Code[type as codeType],
+  const response: IResponse = {
+    code,
     data,
   };
 
-  message && (sendRes.message = message);
-  return res.status(resStatus).send(sendRes);
-}
+  response.message ??= message;
+
+  return res.status(status).send(response);
+};
 
 // 错误响应
 result.error = function (
   res: Response,
   data: unknown,
-  message?: unknown,
-  status?: number
+  message: unknown = RESPONSE_MESSAGE_MAP[ResponseType.ERROR]
 ) {
-  logger.error(message || CodeMessage.error);
-  this(res, data, {
-    type: 'error',
-    message: message || CodeMessage.error,
-    status: status || 409,
+  logger.error(message);
+  return this(res, data, {
+    code: RESPONSE_CODE_MAP[ResponseType.ERROR],
+    message: message,
   });
 };
 
 // 无权限响应
 result.denied = function (res: Response, data: unknown) {
-  this(res, data, {
-    type: 'denied',
-    message: CodeMessage.denied,
-    status: 401,
+  return this(res, data, {
+    code: RESPONSE_CODE_MAP[ResponseType.DENIED],
+    message: RESPONSE_MESSAGE_MAP[ResponseType.DENIED],
+  });
+};
+
+// 未授权响应
+result.unauthorized = function (res: Response, data: unknown) {
+  return this(res, data, {
+    code: RESPONSE_CODE_MAP[ResponseType.UNAUTHORIZED],
+    message: RESPONSE_MESSAGE_MAP[ResponseType.UNAUTHORIZED],
   });
 };
 

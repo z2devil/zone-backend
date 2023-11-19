@@ -14,7 +14,7 @@ const validate =
       if (authority) {
         // 从上下文获取当前用户email
         const _user = res.locals._context?.user;
-        if (!_user) return result.denied(res, null);
+        if (!_user) return result.unauthorized(res, null);
         // 判断用户权限是否足够
         const user = await throwHandle(USER_CRUD.findOne, _user);
         if (!user || user.lv < authority) return result.denied(res, null);
@@ -25,6 +25,7 @@ const validate =
           query: req.query,
           params: req.params,
         });
+        console.log('[ parse ]', parse);
         req.body = parse.body;
         req.query = parse.query;
         req.params = parse.params;
