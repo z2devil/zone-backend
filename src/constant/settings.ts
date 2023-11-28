@@ -17,7 +17,7 @@ export default {
   },
   // oss相关
   oss: {
-    endpoint: 'oss-cn-beijing.aliyuncs.com',
+    endpoint: 'oss-cn-beijing',
     'access-key-id': '***REMOVED***',
     'access-key-secret': '***REMOVED***',
     'bucket-name': 'z2devil-bucket',
