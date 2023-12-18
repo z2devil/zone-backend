@@ -57,6 +57,4 @@ const noteSchema = schemaFactory({
 
 const NoteModel = mongoose.model<NoteDocument>('Note', noteSchema);
 
-const query = NoteModel.find();
-
 export default NoteModel;

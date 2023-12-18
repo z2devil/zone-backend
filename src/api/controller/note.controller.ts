@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
 import NOTE_CRUD, {
   createNote,
+  findAdjacentNote,
   findNote,
   findNotes,
   viewNote,
@@ -21,6 +22,30 @@ export async function findNoteHandler(req: Request, res: Response) {
 export async function findNotesHandler(req: Request, res: Response) {
   const [e, notes] = await silentHandle(findNotes, req.query);
   return e ? result.error(res, null, e.message) : result(res, notes);
+}
+
+/**
+ * 查找相邻笔记
+ */
+export async function findAdjacentHandler(req: Request, res: Response) {
+  const [e, data] = await silentHandle(async () => {
+    const note = await findNote({
+      _id: req.params._id,
+    });
+    if (!note) {
+      throw new Error('笔记不存在');
+    }
+    console.log('[ note ]', note);
+    const [prevRes, nextRes] = await Promise.allSettled([
+      findAdjacentNote(note.createdAt, 'previous'),
+      findAdjacentNote(note.createdAt, 'next'),
+    ]);
+    return {
+      prev: prevRes.status === 'fulfilled' ? prevRes.value : null,
+      next: nextRes.status === 'fulfilled' ? nextRes.value : null,
+    };
+  });
+  return e ? result.error(res, null, e.message) : result(res, data);
 }
 
 /**

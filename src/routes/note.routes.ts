@@ -5,6 +5,7 @@ import {
   viewNoteSchema,
   updateNoteSchema,
   findNotesSchema,
+  findAdjacentSchema,
 } from '../api/schema/note.schema';
 import { Router } from 'express';
 import validate from '../middleware/validate';
@@ -16,6 +17,7 @@ import {
   viewNoteHandler,
   updateNoteHandler,
   findNotesHandler,
+  findAdjacentHandler,
 } from '../api/controller/note.controller';
 
 const router = Router();
@@ -29,6 +31,11 @@ router.get('/:_id', validate(findNoteSchema), findNoteHandler);
  * 查找笔记列表
  */
 router.get('/', validate(findNotesSchema), findNotesHandler);
+
+/**
+ * 查找相邻笔记
+ */
+router.get('/adjacent/:_id', validate(findAdjacentSchema), findAdjacentHandler);
 
 /**
  * 发表笔记

@@ -21,11 +21,10 @@ const validate =
       }
       if (schema) {
         const parse = schema.parse({
-          body: req.body,
-          query: req.query,
           params: req.params,
+          query: req.query,
+          body: req.body,
         });
-        console.log('[ parse ]', parse);
         req.body = parse.body;
         req.query = parse.query;
         req.params = parse.params;

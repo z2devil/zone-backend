@@ -29,6 +29,13 @@ export const findNotesSchema = object({
   ]),
 });
 
+// 查找相邻笔记参数
+export const findAdjacentSchema = object({
+  params: object({
+    _id: string({ required_error: '缺少id' }).min(1),
+  }).strict(),
+});
+
 // 发表笔记参数
 export const createNoteSchema = object({
   body: discriminatedUnion('type', [

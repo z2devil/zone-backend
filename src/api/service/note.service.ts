@@ -156,6 +156,54 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
   };
 };
 
+export const findAdjacentNote = async (
+  createdAt: number,
+  direction: 'previous' | 'next'
+) => {
+  const isPrevious = direction === 'previous';
+  const queryCondition = isPrevious ? { $lt: createdAt } : { $gt: createdAt };
+  const sortOrder = isPrevious ? -1 : 1;
+
+  const adjacentNote = await NoteModel.findOne(
+    {
+      createdAt: queryCondition,
+      isDeleted: false,
+    },
+    [
+      'type',
+      'title',
+      'summary',
+      'content',
+      'createdAt',
+      'author',
+      'views',
+      'tags',
+      'bannerPath',
+    ],
+    {
+      populate: [
+        {
+          path: 'author',
+          select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+      ],
+      sort: { createdAt: sortOrder },
+    }
+  );
+
+  return adjacentNote?.toObject({
+    transform: (doc, ret) => {
+      ret.viewsNum = ret.views?.length;
+      delete ret.views;
+      if (!ret.type) {
+        delete ret.title;
+        delete ret.summary;
+      }
+      return ret;
+    },
+  });
+};
+
 /**
  * 阅读笔记
  */
