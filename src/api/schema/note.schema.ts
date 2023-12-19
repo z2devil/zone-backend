@@ -45,8 +45,8 @@ export const createNoteSchema = object({
         .min(1, {
           message: '内容字数必须大于0',
         })
-        .max(3000, {
-          message: '内容字数必须小于3000',
+        .max(30000, {
+          message: '内容字数必须小于30000',
         }),
     }),
     object({
@@ -106,8 +106,8 @@ export const updateNoteSchema = object({
         .min(1, {
           message: '内容字数必须大于0',
         })
-        .max(3000, {
-          message: '内容字数必须小于3000',
+        .max(30000, {
+          message: '内容字数必须小于30000',
         }),
     }),
     object({
