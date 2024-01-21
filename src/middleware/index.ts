@@ -7,8 +7,8 @@ import response from './response';
 export default {
   init: (app: Express) => {
     app.use(express.json());
-    app.use(limit);
     app.use(context);
     app.use(response);
+    app.use(limit);
   },
 };
