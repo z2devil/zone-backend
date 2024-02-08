@@ -102,13 +102,12 @@ export const updateNoteSchema = object({
     object({
       _id: string({ required_error: '缺少id' }).min(1),
       type: literal(NoteType.Normal),
-      content: string({ required_error: '缺少内容' })
-        .min(1, {
-          message: '内容字数必须大于0',
-        })
-        .max(30000, {
-          message: '内容字数必须小于30000',
-        }),
+      content: string({ required_error: '缺少内容' }).min(1, {
+        message: '内容字数必须大于0',
+      }),
+      // .max(30000, {
+      //   message: '内容字数必须小于30000',
+      // }),
     }),
     object({
       _id: string({ required_error: '缺少id' }).min(1),
