@@ -41,23 +41,20 @@ export const createNoteSchema = object({
   body: discriminatedUnion('type', [
     object({
       type: literal(NoteType.Normal),
-      content: string({ required_error: '缺少内容' })
-        .min(1, {
-          message: '内容字数必须大于0',
+      content: string({ required_error: '缺少内容' }).min(1, {
+        message: '内容字数必须大于0',
+      }),
+      tags: array(string())
+        .max(5, {
+          message: '标签最多5个',
         })
-        .max(30000, {
-          message: '内容字数必须小于30000',
-        }),
+        .optional(),
     }),
     object({
       type: literal(NoteType.Article),
-      content: string({ required_error: '缺少内容' })
-        .min(1, {
-          message: '内容字数必须大于0',
-        })
-        .max(10000, {
-          message: '内容字数必须小于30000',
-        }),
+      content: string({ required_error: '缺少内容' }).min(1, {
+        message: '内容字数必须大于0',
+      }),
       bannerPath: string().optional(),
       title: string({ required_error: '缺少标题' })
         .min(1, {
@@ -65,13 +62,6 @@ export const createNoteSchema = object({
         })
         .max(150, {
           message: '标题字数必须小于150',
-        }),
-      summary: string({ required_error: '缺少摘要' })
-        .min(1, {
-          message: '摘要字数必须大于0',
-        })
-        .max(500, {
-          message: '摘要字数必须小于500',
         }),
       tags: array(string())
         .max(5, {
@@ -105,20 +95,18 @@ export const updateNoteSchema = object({
       content: string({ required_error: '缺少内容' }).min(1, {
         message: '内容字数必须大于0',
       }),
-      // .max(30000, {
-      //   message: '内容字数必须小于30000',
-      // }),
+      tags: array(string())
+        .max(5, {
+          message: '标签最多5个',
+        })
+        .optional(),
     }),
     object({
       _id: string({ required_error: '缺少id' }).min(1),
       type: literal(NoteType.Article),
-      content: string({ required_error: '缺少内容' })
-        .min(1, {
-          message: '内容字数必须大于0',
-        })
-        .max(10000, {
-          message: '内容字数必须小于30000',
-        }),
+      content: string({ required_error: '缺少内容' }).min(1, {
+        message: '内容字数必须大于0',
+      }),
       bannerPath: string().optional(),
       title: string({ required_error: '缺少标题' })
         .min(1, {
@@ -126,13 +114,6 @@ export const updateNoteSchema = object({
         })
         .max(150, {
           message: '标题字数必须小于150',
-        }),
-      summary: string({ required_error: '缺少摘要' })
-        .min(1, {
-          message: '摘要字数必须大于0',
-        })
-        .max(500, {
-          message: '摘要字数必须小于500',
         }),
       tags: array(string())
         .max(5, {

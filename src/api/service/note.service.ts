@@ -34,6 +34,10 @@ export const createNote = async (params: Partial<NoteDocument>) => {
           path: 'author',
           select: ['email', 'nickname', 'lv', 'avatarPath'],
         },
+        {
+          path: 'tags',
+          select: ['label'],
+        },
       ],
       sort: { createdAt: -1 },
     }
@@ -76,6 +80,10 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
         {
           path: 'author',
           select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+        {
+          path: 'tags',
+          select: ['label'],
         },
       ],
       sort: { createdAt: -1 },
@@ -132,6 +140,10 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
         {
           path: 'author',
           select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+        {
+          path: 'tags',
+          select: ['label'],
         },
       ],
       sort: { createdAt: -1 },
@@ -207,7 +219,6 @@ export const findAdjacentNote = async (
 /**
  * 阅读笔记
  */
-
 export const viewNote = async (params: FilterQuery<NoteDocument>) => {
   const { ip, ...restParams } = params;
   const note = await NoteModel.findOne({
@@ -222,5 +233,45 @@ export const viewNote = async (params: FilterQuery<NoteDocument>) => {
       isDeleted: false,
     },
     note
+  );
+};
+
+/**
+ * 修改笔记
+ */
+export const updateNote = async (
+  params: FilterQuery<NoteDocument>,
+  update: Partial<NoteDocument>
+) => {
+  return await NoteModel.findOneAndUpdate(
+    {
+      ...params,
+      isDeleted: false,
+    },
+    update,
+    {
+      new: true,
+      projection: [
+        'type',
+        'title',
+        'summary',
+        'content',
+        'createdAt',
+        'author',
+        'views',
+        'tags',
+        'bannerPath',
+      ],
+      populate: [
+        {
+          path: 'author',
+          select: ['email', 'nickname', 'lv', 'avatarPath'],
+        },
+        {
+          path: 'tags',
+          select: ['label'],
+        },
+      ],
+    }
   );
 };
