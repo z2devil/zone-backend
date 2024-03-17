@@ -5,6 +5,7 @@ import NOTE_CRUD, {
   findAdjacentNote,
   findNote,
   findNotes,
+  updateNote,
   viewNote,
 } from '../service/note.service';
 
@@ -82,7 +83,7 @@ export async function viewNoteHandler(req: Request, res: Response) {
  */
 export async function updateNoteHandler(req: Request, res: Response) {
   const [e, note] = await silentHandle(
-    NOTE_CRUD.update,
+    updateNote,
     {
       _id: req.body._id,
     },
