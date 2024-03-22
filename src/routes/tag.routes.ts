@@ -4,6 +4,7 @@ import {
   createTagSchema,
   findTagSchema,
   deleteTagSchema,
+  putTagSchema,
 } from '../api/schema/tag.schema';
 import {
   createTagHandler,
@@ -13,9 +14,11 @@ import {
 
 const router = Router();
 
+router.get('/', validate(findTagSchema), findTagHandler);
+
 router.post('/', validate(createTagSchema), createTagHandler);
 
-router.get('/', validate(findTagSchema), findTagHandler);
+router.put('/', validate(putTagSchema), createTagHandler);
 
 router.delete('/', validate(deleteTagSchema), deleteTagHandler);
 

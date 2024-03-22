@@ -23,15 +23,23 @@ class BaseCrudProviderCls<document, Cdocument> {
   /**
    * 新增或修改
    */
-  async createOrUpdate(input: Partial<DocumentDefinition<Cdocument>>) {
-    const result = await this.DBModel.find(input as FilterQuery<document>);
+  async createOrUpdate(input: Partial<FilterQuery<document>>) {
+    const result = await this.DBModel.find({
+      _id: input._id,
+    });
     if (result.length === 0) {
       return await this.DBModel.create(input);
     } else {
-      return await this.DBModel.where(input).updateMany({
-        ...input,
-        isDeleted: false,
-      });
+      return await this.DBModel.findByIdAndUpdate(
+        input._id,
+        {
+          label: input.label,
+          isDeleted: false,
+        },
+        {
+          new: true,
+        }
+      );
     }
   }
 
