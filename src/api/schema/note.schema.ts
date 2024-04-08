@@ -21,6 +21,7 @@ export const findNotesSchema = object({
           })
           .refine(i => NoteType[i], { message: '搜索类型错误' })
           .optional(),
+        tags: array(string()).optional(),
       })
       .strict(),
     object({
