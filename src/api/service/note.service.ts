@@ -146,6 +146,9 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
           select: ['label'],
         },
       ],
+      query: {
+        tags: { $in: params.tags?.split(',') || [] },
+      },
       sort: { createdAt: -1 },
     }
   );
@@ -274,4 +277,61 @@ export const updateNote = async (
       ],
     }
   );
+};
+
+/*
+ * 获取标签分类列表
+ */
+export const getCategories = async () => {
+  const categories = await NoteModel.aggregate([
+    {
+      $match: {
+        isDeleted: false,
+      },
+    },
+    {
+      $unwind: '$tags',
+    },
+    {
+      $group: {
+        _id: '$tags',
+        count: { $sum: 1 },
+        latestNoteId: { $last: '$_id' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'notes',
+        localField: 'latestNoteId',
+        foreignField: '_id',
+        as: 'latestNoteData',
+      },
+    },
+    {
+      $unwind: '$latestNoteData',
+    },
+    {
+      $lookup: {
+        from: 'tags',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'tagData',
+      },
+    },
+    {
+      $unwind: '$tagData',
+    },
+    {
+      $project: {
+        _id: 1,
+        label: '$tagData.label',
+        count: 1,
+        latestNote: '$latestNoteData',
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
+  return categories;
 };

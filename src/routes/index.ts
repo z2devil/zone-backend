@@ -6,6 +6,7 @@ import auth from './auth.routes';
 import note from './note.routes';
 import tag from './tag.routes';
 import oss from './oss.routes';
+import aggregate from './aggregate.routes';
 
 // 路由配置接口
 interface RouterConf {
@@ -24,6 +25,7 @@ const routerConf: Array<RouterConf> = [
   { path: '/note', router: note },
   { path: '/tag', router: tag },
   { path: '/oss', router: oss },
+  { path: '/aggregate', router: aggregate },
 ];
 
 function routes(app: Express) {
