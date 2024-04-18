@@ -146,6 +146,9 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
           select: ['label'],
         },
       ],
+      query: {
+        tags: { $in: params.tags?.split(',') || [] },
+      },
       sort: { createdAt: -1 },
     }
   );
