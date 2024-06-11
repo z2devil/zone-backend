@@ -41,7 +41,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           command: |
             cd /home/ubuntu
             sudo docker-compose pull
