@@ -43,6 +43,6 @@ jobs:
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.PRIVATE_KEY }}
           command: |
-            cd /root/marchsoft/project
-            docker-compose pull
-            docker-compose up -d
+            cd /home/ubuntu
+            sudo docker-compose pull
+            sudo docker-compose up -d
