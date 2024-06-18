@@ -4,7 +4,7 @@ export default {
   // 数据库相关
   db: {
     uri: 'mongodb://***REMOVED***:27017/blog',
-    user: 'admin',
+    user: 'root',
     password: '***REMOVED***',
     source: 'admin',
   },
@@ -12,7 +12,7 @@ export default {
   redis: {
     port: 6379,
     host: '***REMOVED***',
-    db: 3,
+    db: 0,
     password: '***REMOVED***',
   },
   // oss相关
