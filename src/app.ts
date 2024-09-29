@@ -9,6 +9,8 @@ import { logger } from './utils';
 import middleware from './middleware';
 // mongodb
 import { connectDB } from './api/common';
+// 定时任务
+import './schedule';
 
 // 创建 express 实例
 const app = express();
