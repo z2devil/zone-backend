@@ -3,9 +3,6 @@ import { BaseCrudProvider } from '../common';
 import StatisticsModel, {
   StatisticsDocument,
 } from '../models/statistics.model';
-import mongoose from 'mongoose';
-
-const STATISTICS_ID = new mongoose.Types.ObjectId();
 
 const CRUD = BaseCrudProvider<
   StatisticsDocument,
@@ -16,15 +13,15 @@ const CRUD = BaseCrudProvider<
  * 数据统计
  */
 export const collect = async (params: FilterQuery<StatisticsDocument>) => {
-  await CRUD.createOrUpdate({ ...params, _id: STATISTICS_ID });
+  await CRUD.create(params);
 };
 
 /**
  * 获取数据统计
  */
 export const get = async () => {
-  return CRUD.findOne({
-    _id: STATISTICS_ID,
+  return CRUD.findOne({}, null, {
+    sort: { createdAt: -1 },
   });
 };
 
