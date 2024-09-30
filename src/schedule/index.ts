@@ -31,6 +31,6 @@ const collectData = async () => {
   });
 };
 
-cron.schedule('* * * * *', () => {
+cron.schedule('0 * * * *', () => {
   collectData();
 });
