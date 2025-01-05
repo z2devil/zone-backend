@@ -7,7 +7,7 @@ export interface BaseDocument extends mongoose.Document {
 }
 
 export const schemaFactory = (params: object) => {
-  return new mongoose.Schema(
+  const schema = new mongoose.Schema(
     {
       ...params,
       createdAt: {
@@ -27,4 +27,6 @@ export const schemaFactory = (params: object) => {
       timestamps: false,
     }
   );
+
+  return schema;
 };

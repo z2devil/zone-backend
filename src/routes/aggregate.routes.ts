@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import validate from '../middleware/validate';
-import { categoryHandler } from '../api/controller/aggregate.controlle';
+import { categoryHandler } from '../api/controller/aggregate.controller';
 
 const router = Router();
 

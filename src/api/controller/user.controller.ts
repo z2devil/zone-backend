@@ -63,3 +63,11 @@ export async function updateUserHandler(req: Request, res: Response) {
   }
   return result(res, data);
 }
+
+/**
+ * 获取用户列表
+ */
+export async function findUserListHandler(req: Request, res: Response) {
+  const [e, users] = await silentHandle(USER_CRUD.findPaginate, req.query);
+  return e ? result.error(res, null, e.message) : result(res, users);
+}
