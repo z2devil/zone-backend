@@ -104,6 +104,13 @@ export const updateNoteSchema = object({
       content: string({ required_error: '缺少内容' }).min(1, {
         message: '内容字数必须大于0',
       }),
+      title: string({ required_error: '缺少标题' })
+        .min(1, {
+          message: '标题字数必须大于0',
+        })
+        .max(150, {
+          message: '标题字数必须小于150',
+        }),
       tags: array(string())
         .max(5, {
           message: '标签最多5个',

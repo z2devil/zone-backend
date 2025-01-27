@@ -26,3 +26,8 @@ export const updateUserSchema = object({
     nickname: string().optional(),
   }).strict(),
 });
+
+// 查找列表接口
+export const findUserListSchema = object({
+  query: pageSchema,
+});

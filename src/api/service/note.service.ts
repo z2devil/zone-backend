@@ -47,7 +47,6 @@ export const createNote = async (params: Partial<NoteDocument>) => {
       ret.viewsNum = ret.views?.length;
       delete ret.views;
       if (!ret.type) {
-        delete ret.title;
         delete ret.summary;
       }
       return ret;
@@ -95,7 +94,6 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
       ret.viewsNum = ret.views?.length;
       delete ret.views;
       if (!ret.type) {
-        delete ret.title;
         delete ret.summary;
       }
       return ret;
@@ -161,7 +159,6 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
           ret.viewsNum = ret.views?.length;
           delete ret.views;
           if (!ret.type) {
-            delete ret.title;
             delete ret.summary;
           }
           return ret;
@@ -211,7 +208,6 @@ export const findAdjacentNote = async (
       ret.viewsNum = ret.views?.length;
       delete ret.views;
       if (!ret.type) {
-        delete ret.title;
         delete ret.summary;
       }
       return ret;

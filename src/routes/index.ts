@@ -1,6 +1,8 @@
 import { Express, Request, Response, Router } from 'express';
 import { result } from '../api/common';
 import user from './user.routes';
+import role from './role.routes';
+import permission from './permission.routes';
 import power from './config.routes';
 import auth from './auth.routes';
 import note from './note.routes';
@@ -21,6 +23,8 @@ const ROOT_PATH = '/api';
 // 路由配置
 const routerConf: Array<RouterConf> = [
   { path: '/user', router: user },
+  { path: '/role', router: role },
+  { path: '/permission', router: permission },
   { path: '/power', router: power },
   { path: '/auth', router: auth },
   { path: '/note', router: note },

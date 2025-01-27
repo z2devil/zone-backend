@@ -10,6 +10,8 @@ export interface UserDocument extends BaseDocument {
   avatarPath: string;
   nickname: string;
   lv: number;
+  role: mongoose.Schema.Types.ObjectId;
+  permissions: mongoose.Schema.Types.ObjectId[];
 }
 
 // 模板校验规则
@@ -26,6 +28,8 @@ const userSchema = schemaFactory({
     default: randomUtil.nickname,
   },
   lv: { type: Number, required: false, default: Authority.login },
+  role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
+  permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Permission' }],
 });
 
 // save前置钩子

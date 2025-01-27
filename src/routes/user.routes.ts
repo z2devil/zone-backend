@@ -2,12 +2,14 @@ import { Router } from 'express';
 import validate from '../middleware/validate';
 import {
   createUserSchema,
+  findUserListSchema,
   findUserSchema,
   updateUserSchema,
 } from '../api/schema/user.schema';
 import {
   createUserHandler,
   findUserHandler,
+  findUserListHandler,
   updateUserHandler,
 } from '../api/controller/user.controller';
 import { Authority } from '../constant/authority';
@@ -33,6 +35,15 @@ router.delete('/', validate(findUserSchema), findUserHandler);
  * 更新用户
  */
 router.put('/', validate(updateUserSchema, Authority.login), updateUserHandler);
+
+/**
+ * 查找用户列表
+ */
+router.get(
+  '/list',
+  validate(findUserListSchema, Authority.admin),
+  findUserListHandler
+);
 
 /**
  * 测试权限
