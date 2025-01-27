@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
-import ROLE_CRUD, { findRoles } from '../service/role.service';
+import ROLE_CRUD, {
+  findRoles,
+  getRolePermissionList,
+  updateRolePermission,
+} from '../service/role.service';
 
 /**
  * 创建角色
@@ -39,4 +43,32 @@ export async function updateRoleHandler(req: Request, res: Response) {
     }
   );
   return e ? result.error(res, null, e.message) : result(res, role);
+}
+
+/**
+ * 获取角色权限列表
+ */
+export async function getRolePermissionListHandler(
+  req: Request,
+  res: Response
+) {
+  const [e, data] = await silentHandle(
+    getRolePermissionList,
+    req.params.roleId
+  );
+  return e ? result.error(res, null, e.message) : result(res, data);
+}
+
+/**
+ * 设置角色权限
+ */
+export async function updateRolePermissionHandler(req: Request, res: Response) {
+  const { roleId } = req.params;
+  const { permissionIds } = req.body;
+  const [e, data] = await silentHandle(
+    updateRolePermission,
+    roleId,
+    permissionIds
+  );
+  return e ? result.error(res, null, e.message) : result(res, data);
 }

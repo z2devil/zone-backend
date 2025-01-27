@@ -17,4 +17,21 @@ export const findRoles = async (params: FilterQuery<RoleDocument>) => {
   };
 };
 
+export async function getRolePermissionList(roleId: string) {
+  const role = await RoleModel.findById(roleId).populate('permissions');
+  return role ? role.permissions : [];
+}
+
+export async function updateRolePermission(
+  roleId: string,
+  permissionIds: string[]
+) {
+  const updatedRole = await RoleModel.findByIdAndUpdate(
+    roleId,
+    { permissions: permissionIds },
+    { new: true }
+  ).populate('permissions');
+  return updatedRole;
+}
+
 export default CRUD;

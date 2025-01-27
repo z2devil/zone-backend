@@ -11,6 +11,8 @@ import {
   findRoleHandler,
   removeRoleHandler,
   updateRoleHandler,
+  getRolePermissionListHandler,
+  updateRolePermissionHandler,
 } from '../api/controller/role.controller';
 
 const router = Router();
@@ -42,5 +44,15 @@ router.delete(
  * 更新用户
  */
 router.put('/', validate(updateRoleSchema, Authority.admin), updateRoleHandler);
+
+/**
+ * 获取角色权限列表
+ */
+router.get('/:roleId/permission', getRolePermissionListHandler);
+
+/**
+ * 设置角色权限
+ */
+router.put('/:roleId/permission', updateRolePermissionHandler);
 
 export default router;
