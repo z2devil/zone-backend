@@ -42,6 +42,13 @@ export const createNoteSchema = object({
   body: discriminatedUnion('type', [
     object({
       type: literal(NoteType.Normal),
+      title: string({ required_error: '缺少标题' })
+        .min(1, {
+          message: '标题字数必须大于0',
+        })
+        .max(150, {
+          message: '标题字数必须小于150',
+        }),
       content: string({ required_error: '缺少内容' }).min(1, {
         message: '内容字数必须大于0',
       }),
@@ -53,9 +60,6 @@ export const createNoteSchema = object({
     }),
     object({
       type: literal(NoteType.Article),
-      content: string({ required_error: '缺少内容' }).min(1, {
-        message: '内容字数必须大于0',
-      }),
       title: string({ required_error: '缺少标题' })
         .min(1, {
           message: '标题字数必须大于0',
@@ -63,6 +67,9 @@ export const createNoteSchema = object({
         .max(150, {
           message: '标题字数必须小于150',
         }),
+      content: string({ required_error: '缺少内容' }).min(1, {
+        message: '内容字数必须大于0',
+      }),
       bannerPath: string().optional(),
       summary: string({ required_error: '缺少摘要' })
         .min(1, {
