@@ -12,6 +12,7 @@ export default CRUD;
  * 发表笔记
  */
 export const createNote = async (params: Partial<NoteDocument>) => {
+  console.log('[ createNote ]', params);
   const { _id } = await NoteModel.create(params);
   const note = await NoteModel.findOne(
     {
