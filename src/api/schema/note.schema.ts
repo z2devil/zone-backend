@@ -1,5 +1,4 @@
-import { object, string, discriminatedUnion, literal, array, union } from 'zod';
-import { NoteType } from '../models/note.model';
+import { object, string, array, union } from 'zod';
 import { pageSchema } from './common.schema';
 
 // 查找笔记参数
@@ -15,12 +14,6 @@ export const findNotesSchema = object({
     pageSchema
       .extend({
         search: string({ required_error: '缺少搜索内容' }).optional(),
-        type: string({ required_error: '缺少搜索类型' })
-          .transform<number>(i => {
-            return Number.parseInt(i);
-          })
-          .refine(i => NoteType[i], { message: '搜索类型错误' })
-          .optional(),
         tags: string().optional(),
       })
       .strict(),
@@ -39,53 +32,24 @@ export const findAdjacentSchema = object({
 
 // 发表笔记参数
 export const createNoteSchema = object({
-  body: discriminatedUnion('type', [
-    object({
-      type: literal(NoteType.Normal),
-      title: string({ required_error: '缺少标题' })
-        .min(1, {
-          message: '标题字数必须大于0',
-        })
-        .max(150, {
-          message: '标题字数必须小于150',
-        }),
-      content: string({ required_error: '缺少内容' }).min(1, {
-        message: '内容字数必须大于0',
+  body: object({
+    title: string({ required_error: '缺少标题' })
+      .min(1, {
+        message: '标题字数必须大于0',
+      })
+      .max(150, {
+        message: '标题字数必须小于150',
       }),
-      tags: array(string())
-        .max(5, {
-          message: '标签最多5个',
-        })
-        .optional(),
+    content: string({ required_error: '缺少内容' }).min(1, {
+      message: '内容字数必须大于0',
     }),
-    object({
-      type: literal(NoteType.Article),
-      title: string({ required_error: '缺少标题' })
-        .min(1, {
-          message: '标题字数必须大于0',
-        })
-        .max(150, {
-          message: '标题字数必须小于150',
-        }),
-      content: string({ required_error: '缺少内容' }).min(1, {
-        message: '内容字数必须大于0',
-      }),
-      bannerPath: string().optional(),
-      summary: string({ required_error: '缺少摘要' })
-        .min(1, {
-          message: '摘要字数必须大于0',
-        })
-        .max(500, {
-          message: '摘要字数必须小于150',
-        })
-        .optional(),
-      tags: array(string())
-        .max(5, {
-          message: '标签最多5个',
-        })
-        .optional(),
-    }),
-  ]),
+    bannerPath: string().optional(),
+    tags: array(string())
+      .max(5, {
+        message: '标签最多5个',
+      })
+      .optional(),
+  }),
 });
 
 // 删除笔记参数
@@ -104,53 +68,23 @@ export const viewNoteSchema = object({
 
 // 修改笔记参数
 export const updateNoteSchema = object({
-  body: discriminatedUnion('type', [
-    object({
-      _id: string({ required_error: '缺少id' }).min(1),
-      type: literal(NoteType.Normal),
-      content: string({ required_error: '缺少内容' }).min(1, {
-        message: '内容字数必须大于0',
-      }),
-      title: string({ required_error: '缺少标题' })
-        .min(1, {
-          message: '标题字数必须大于0',
-        })
-        .max(150, {
-          message: '标题字数必须小于150',
-        }),
-      tags: array(string())
-        .max(5, {
-          message: '标签最多5个',
-        })
-        .optional(),
+  body: object({
+    _id: string({ required_error: '缺少id' }).min(1),
+    content: string({ required_error: '缺少内容' }).min(1, {
+      message: '内容字数必须大于0',
     }),
-    object({
-      _id: string({ required_error: '缺少id' }).min(1),
-      type: literal(NoteType.Article),
-      content: string({ required_error: '缺少内容' }).min(1, {
-        message: '内容字数必须大于0',
+    title: string({ required_error: '缺少标题' })
+      .min(1, {
+        message: '标题字数必须大于0',
+      })
+      .max(150, {
+        message: '标题字数必须小于150',
       }),
-      title: string({ required_error: '缺少标题' })
-        .min(1, {
-          message: '标题字数必须大于0',
-        })
-        .max(150, {
-          message: '标题字数必须小于150',
-        }),
-      bannerPath: string().optional(),
-      summary: string({ required_error: '缺少摘要' })
-        .min(1, {
-          message: '摘要字数必须大于0',
-        })
-        .max(500, {
-          message: '摘要字数必须小于150',
-        })
-        .optional(),
-      tags: array(string())
-        .max(5, {
-          message: '标签最多5个',
-        })
-        .optional(),
-    }),
-  ]),
+    bannerPath: string().optional(),
+    tags: array(string())
+      .max(5, {
+        message: '标签最多5个',
+      })
+      .optional(),
+  }),
 });
