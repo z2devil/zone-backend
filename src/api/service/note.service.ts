@@ -18,17 +18,7 @@ export const createNote = async (params: Partial<NoteDocument>) => {
     {
       _id,
     },
-    [
-      'type',
-      'title',
-      'summary',
-      'content',
-      'createdAt',
-      'author',
-      'views',
-      'tags',
-      'bannerPath',
-    ],
+    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -47,9 +37,6 @@ export const createNote = async (params: Partial<NoteDocument>) => {
     transform: (doc, ret) => {
       ret.viewsNum = ret.views?.length;
       delete ret.views;
-      if (!ret.type) {
-        delete ret.summary;
-      }
       return ret;
     },
   });
@@ -64,17 +51,7 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
       ...params,
       isDeleted: false,
     },
-    [
-      'type',
-      'title',
-      'summary',
-      'content',
-      'createdAt',
-      'author',
-      'views',
-      'tags',
-      'bannerPath',
-    ],
+    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -94,9 +71,6 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
     transform: (doc, ret) => {
       ret.viewsNum = ret.views?.length;
       delete ret.views;
-      if (!ret.type) {
-        delete ret.summary;
-      }
       return ret;
     },
   });
@@ -123,17 +97,7 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
 
   const [list, total] = await CRUD.findPaginate(
     params,
-    [
-      'type',
-      'title',
-      'summary',
-      'content',
-      'createdAt',
-      'author',
-      'views',
-      'tags',
-      'bannerPath',
-    ],
+    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -159,9 +123,6 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
         transform: (doc, ret) => {
           ret.viewsNum = ret.views?.length;
           delete ret.views;
-          if (!ret.type) {
-            delete ret.summary;
-          }
           return ret;
         },
       });
@@ -182,17 +143,7 @@ export const findAdjacentNote = async (
       createdAt: queryCondition,
       isDeleted: false,
     },
-    [
-      'type',
-      'title',
-      'summary',
-      'content',
-      'createdAt',
-      'author',
-      'views',
-      'tags',
-      'bannerPath',
-    ],
+    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -208,9 +159,6 @@ export const findAdjacentNote = async (
     transform: (doc, ret) => {
       ret.viewsNum = ret.views?.length;
       delete ret.views;
-      if (!ret.type) {
-        delete ret.summary;
-      }
       return ret;
     },
   });
@@ -252,9 +200,7 @@ export const updateNote = async (
     {
       new: true,
       projection: [
-        'type',
         'title',
-        'summary',
         'content',
         'createdAt',
         'author',
