@@ -134,7 +134,7 @@ class BaseCrudProviderCls<document, Cdocument> {
       .skip((params.current - 1) * params.size)
       .limit(params.size);
 
-    const count = this.DBModel.count({
+    const count = this.DBModel.countDocuments({
       ...params,
       isDeleted: false,
     });

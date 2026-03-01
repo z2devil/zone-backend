@@ -18,7 +18,7 @@ export const createNote = async (params: Partial<NoteDocument>) => {
     {
       _id,
     },
-    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
+    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -35,8 +35,8 @@ export const createNote = async (params: Partial<NoteDocument>) => {
   );
   return note?.toObject({
     transform: (doc, ret) => {
-      ret.viewsNum = ret.views?.length;
-      delete ret.views;
+      ret.viewsNum = ret.viewCount;
+      delete ret.viewCount;
       return ret;
     },
   });
@@ -51,7 +51,7 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
       ...params,
       isDeleted: false,
     },
-    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
+    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -69,8 +69,8 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
 
   return note?.toObject({
     transform: (doc, ret) => {
-      ret.viewsNum = ret.views?.length;
-      delete ret.views;
+      ret.viewsNum = ret.viewCount;
+      delete ret.viewCount;
       return ret;
     },
   });
@@ -80,8 +80,12 @@ export const findNote = async (params: FilterQuery<NoteDocument>) => {
  * 查找笔记列表
  */
 export const findNotes = async (params: FilterQuery<NoteDocument>) => {
+  // 构造干净的 filter 对象
+  const filter: any = { isDeleted: false };
+
+  // 处理搜索
   if (params['search']) {
-    params.$or = [
+    filter.$or = [
       {
         summary: {
           $regex: new RegExp(params['search']),
@@ -95,9 +99,18 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
     ];
   }
 
+  // 处理标签过滤
+  if (params.tags) {
+    filter.tags = { $in: params.tags.split(',') };
+  }
+
+  // 保留分页参数
+  filter.current = params.current;
+  filter.size = params.size;
+
   const [list, total] = await CRUD.findPaginate(
-    params,
-    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
+    filter,
+    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
     {
       populate: [
         {
@@ -109,9 +122,6 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
           select: ['label'],
         },
       ],
-      query: {
-        tags: { $in: params.tags?.split(',') || [] },
-      },
       sort: { createdAt: -1 },
     }
   );
@@ -121,8 +131,8 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
     list: list.map(d => {
       return d.toObject({
         transform: (doc, ret) => {
-          ret.viewsNum = ret.views?.length;
-          delete ret.views;
+          ret.viewsNum = ret.viewCount;
+          delete ret.viewCount;
           return ret;
         },
       });
@@ -143,25 +153,13 @@ export const findAdjacentNote = async (
       createdAt: queryCondition,
       isDeleted: false,
     },
-    ['title', 'content', 'createdAt', 'author', 'views', 'tags', 'bannerPath'],
+    ['_id', 'title', 'createdAt'],
     {
-      populate: [
-        {
-          path: 'author',
-          select: ['email', 'nickname', 'lv', 'avatarPath'],
-        },
-      ],
       sort: { createdAt: sortOrder },
     }
   );
 
-  return adjacentNote?.toObject({
-    transform: (doc, ret) => {
-      ret.viewsNum = ret.views?.length;
-      delete ret.views;
-      return ret;
-    },
-  });
+  return adjacentNote?.toObject();
 };
 
 /**
@@ -169,18 +167,9 @@ export const findAdjacentNote = async (
  */
 export const viewNote = async (params: FilterQuery<NoteDocument>) => {
   const { ip, ...restParams } = params;
-  const note = await NoteModel.findOne({
-    ...restParams,
-    isDeleted: false,
-  });
-  if (!note || note.views.findIndex(i => i === ip) > -1) return;
-  note.views.push(ip);
   return await NoteModel.updateOne(
-    {
-      ...restParams,
-      isDeleted: false,
-    },
-    note
+    { ...restParams, isDeleted: false, views: { $ne: ip } },
+    { $push: { views: ip }, $inc: { viewCount: 1 } }
   );
 };
 
