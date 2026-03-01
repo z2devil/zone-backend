@@ -5,6 +5,7 @@ export interface NoteDocument extends BaseDocument {
   content: string;
   author: mongoose.Schema.Types.ObjectId;
   views: Array<string>;
+  viewCount: number;
   bannerPath: string;
   tags: mongoose.Schema.Types.ObjectId[];
 }
@@ -22,6 +23,10 @@ const noteSchema = schemaFactory({
     type: Array,
     required: false,
   },
+  viewCount: {
+    type: Number,
+    default: 0,
+  },
   bannerPath: {
     type: String,
     required: false,
@@ -37,6 +42,9 @@ const noteSchema = schemaFactory({
     },
   ],
 });
+
+noteSchema.index({ isDeleted: 1, createdAt: -1 });
+noteSchema.index({ isDeleted: 1, tags: 1, createdAt: -1 });
 
 const NoteModel = mongoose.model<NoteDocument>('Note', noteSchema);
 
