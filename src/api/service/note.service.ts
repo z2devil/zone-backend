@@ -110,7 +110,7 @@ export const findNotes = async (params: FilterQuery<NoteDocument>) => {
 
   const [list, total] = await CRUD.findPaginate(
     filter,
-    ['title', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
+    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
     {
       populate: [
         {
