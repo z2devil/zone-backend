@@ -52,4 +52,10 @@ export default {
     // token秘钥
     'token-secret': '***REMOVED***',
   },
+  // AI 相关
+  ai: {
+    baseURL: '***REMOVED***',
+    apiKey: '***REMOVED***',
+    model: 'deepseek-chat',
+  },
 };
