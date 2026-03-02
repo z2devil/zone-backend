@@ -119,23 +119,26 @@ class BaseCrudProviderCls<document, Cdocument> {
     projection?: any,
     options?: QueryOptions
   ) {
+    // 从 params 中分离分页参数和查询条件
+    const { current, size, ...filter } = params;
+
     const query = this.DBModel.find<
       document & {
         _id: string;
       }
     >(
       {
-        ...params,
+        ...filter,
         isDeleted: false,
       },
       projection,
       options
     )
-      .skip((params.current - 1) * params.size)
-      .limit(params.size);
+      .skip((current - 1) * size)
+      .limit(size);
 
     const count = this.DBModel.countDocuments({
-      ...params,
+      ...filter,
       isDeleted: false,
     });
 
