@@ -5,6 +5,7 @@ import { redisUtils } from '../../redis';
 import { jwtUtil, randomUtil } from '../../utils';
 import emailer from '../../utils/emailUtil';
 import USER_CRUD from '../../api/service/user.service';
+import { toAuthUserInfo } from './auth.presenter';
 
 /**
  * 发送验证码
@@ -98,15 +99,9 @@ export async function signHandler(req: Request, res: Response) {
       });
     }
     // 获取用户部分属性
-    const { lv, nickname, avatarPath } = user;
     // 对结果赋值
     data = {
-      info: {
-        email,
-        lv,
-        nickname,
-        avatarPath,
-      },
+      info: toAuthUserInfo(user),
       token,
     };
   } catch (e: any) {
@@ -127,17 +122,12 @@ export async function infoHandler(req: Request, res: Response) {
     const user = await throwHandle(USER_CRUD.findOne, _user);
     if (!user) return result.error(res, null, '用户不存在');
     // 获取用户部分属性
-    const { email, lv, nickname, avatarPath } = user;
+    const { email } = user;
     // 从缓存获取token
     const token = await redisUtils.get(config.auth['token-prefix'] + email);
     // 对结果赋值
     data = {
-      info: {
-        email,
-        lv,
-        nickname,
-        avatarPath,
-      },
+      info: toAuthUserInfo(user),
       token,
     };
   } catch (e: any) {

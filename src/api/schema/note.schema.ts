@@ -1,5 +1,7 @@
-import { object, string, array, union } from 'zod';
+import { object, string, array, union, enum as zodEnum } from 'zod';
 import { pageSchema } from './common.schema';
+
+const visibilitySchema = zodEnum(['public', 'private']);
 
 // 查找笔记参数
 export const findNoteSchema = object({
@@ -13,7 +15,9 @@ export const findNotesSchema = object({
   query: union([
     pageSchema
       .extend({
-        search: string({ required_error: '缺少搜索内容' }).optional(),
+        search: string({ required_error: '缺少搜索内容' })
+          .max(100, '搜索内容最多100个字符')
+          .optional(),
         tags: string().optional(),
       })
       .strict(),
@@ -44,6 +48,7 @@ export const createNoteSchema = object({
       message: '内容字数必须大于0',
     }),
     bannerPath: string().optional(),
+    visibility: visibilitySchema.default('public'),
     tags: array(string())
       .max(5, {
         message: '标签最多5个',
@@ -81,6 +86,7 @@ export const updateNoteSchema = object({
         message: '标题字数必须小于150',
       }),
     bannerPath: string().optional(),
+    visibility: visibilitySchema.optional(),
     tags: array(string())
       .max(5, {
         message: '标签最多5个',

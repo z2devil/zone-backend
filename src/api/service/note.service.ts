@@ -1,229 +1,183 @@
-import { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import NoteModel, { NoteDocument } from '../models/note.model';
-import { BaseCrudProvider } from '../common';
+import {
+  buildPublicNoteScope,
+  buildReadableNoteScope,
+  withNoteScope,
+} from './note.access';
 
-const CRUD = BaseCrudProvider<NoteDocument, Omit<NoteDocument, 'createdAt'>>(
-  NoteModel
-);
+const NOTE_PROJECTION = [
+  'title',
+  'content',
+  'createdAt',
+  'author',
+  'viewCount',
+  'tags',
+  'bannerPath',
+  'visibility',
+];
 
-export default CRUD;
+const NOTE_POPULATE = [
+  {
+    path: 'author',
+    select: ['email', 'nickname', 'lv', 'avatarPath'],
+  },
+  {
+    path: 'tags',
+    select: ['label'],
+  },
+];
 
-/**
- * 发表笔记
- */
+const toNoteObject = (note: NoteDocument | null) =>
+  note?.toObject({
+    transform: (_doc, ret) => {
+      ret.viewsNum = ret.viewCount;
+      delete ret.viewCount;
+      return ret;
+    },
+  });
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const readableFilter = (filter: FilterQuery<NoteDocument>, actorId?: unknown) =>
+  withNoteScope(
+    { ...filter, isDeleted: false },
+    buildReadableNoteScope(actorId)
+  ) as FilterQuery<NoteDocument>;
+
+const publicFilter = (filter: FilterQuery<NoteDocument>) =>
+  withNoteScope(
+    { ...filter, isDeleted: false },
+    buildPublicNoteScope()
+  ) as FilterQuery<NoteDocument>;
+
+/** 发表笔记。模型与参数校验共同保证旧客户端默认公开。 */
 export const createNote = async (params: Partial<NoteDocument>) => {
-  console.log('[ createNote ]', params);
   const { _id } = await NoteModel.create(params);
+  return findNote({ _id }, String(params.author));
+};
+
+/** 查找当前访客可读的单篇笔记。 */
+export const findNote = async (
+  params: FilterQuery<NoteDocument>,
+  actorId?: string
+) => {
   const note = await NoteModel.findOne(
+    readableFilter(params, actorId),
+    NOTE_PROJECTION,
     {
-      _id,
-    },
-    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
-    {
-      populate: [
-        {
-          path: 'author',
-          select: ['email', 'nickname', 'lv', 'avatarPath'],
-        },
-        {
-          path: 'tags',
-          select: ['label'],
-        },
-      ],
+      populate: NOTE_POPULATE,
       sort: { createdAt: -1 },
     }
   );
-  return note?.toObject({
-    transform: (doc, ret) => {
-      ret.viewsNum = ret.viewCount;
-      delete ret.viewCount;
-      return ret;
-    },
-  });
+  return toNoteObject(note);
 };
 
-/**
- * 查找笔记
- */
-export const findNote = async (params: FilterQuery<NoteDocument>) => {
-  const note = await NoteModel.findOne(
-    {
-      ...params,
-      isDeleted: false,
-    },
-    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
-    {
-      populate: [
-        {
-          path: 'author',
-          select: ['email', 'nickname', 'lv', 'avatarPath'],
-        },
-        {
-          path: 'tags',
-          select: ['label'],
-        },
-      ],
-      sort: { createdAt: -1 },
-    }
-  );
+/** 查找当前访客可读的笔记列表。 */
+export const findNotes = async (
+  params: FilterQuery<NoteDocument>,
+  actorId?: string
+) => {
+  const baseFilter: FilterQuery<NoteDocument> = {};
 
-  return note?.toObject({
-    transform: (doc, ret) => {
-      ret.viewsNum = ret.viewCount;
-      delete ret.viewCount;
-      return ret;
-    },
-  });
-};
-
-/**
- * 查找笔记列表
- */
-export const findNotes = async (params: FilterQuery<NoteDocument>) => {
-  // 构造干净的 filter 对象
-  const filter: any = { isDeleted: false };
-
-  // 处理搜索
-  if (params['search']) {
-    filter.$or = [
-      {
-        summary: {
-          $regex: new RegExp(params['search']),
-        },
-      },
-      {
-        title: {
-          $regex: new RegExp(params['search']),
-        },
-      },
-    ];
+  if (params.search) {
+    const search = new RegExp(escapeRegExp(String(params.search)), 'i');
+    baseFilter.$or = [{ summary: search }, { title: search }];
   }
 
-  // 处理标签过滤
   if (params.tags) {
-    filter.tags = { $in: params.tags.split(',') };
+    baseFilter.tags = { $in: String(params.tags).split(',') } as any;
   }
 
-  // 保留分页参数
-  filter.current = params.current;
-  filter.size = params.size;
+  const filter = readableFilter(baseFilter, actorId);
+  const current = Number(params.current);
+  const size = Number(params.size);
 
-  const [list, total] = await CRUD.findPaginate(
-    filter,
-    ['title', 'content', 'createdAt', 'author', 'viewCount', 'tags', 'bannerPath'],
-    {
-      populate: [
-        {
-          path: 'author',
-          select: ['email', 'nickname', 'lv', 'avatarPath'],
-        },
-        {
-          path: 'tags',
-          select: ['label'],
-        },
-      ],
-      sort: { createdAt: -1 },
-    }
-  );
+  const query = NoteModel.find(filter, NOTE_PROJECTION, {
+    populate: NOTE_POPULATE,
+    sort: { createdAt: -1 },
+  })
+    .skip((current - 1) * size)
+    .limit(size);
+
+  const [list, total] = await Promise.all([
+    query,
+    NoteModel.countDocuments(filter),
+  ]);
 
   return {
     total,
-    list: list.map(d => {
-      return d.toObject({
-        transform: (doc, ret) => {
-          ret.viewsNum = ret.viewCount;
-          delete ret.viewCount;
-          return ret;
-        },
-      });
-    }),
+    list: list.map(note => toNoteObject(note)),
   };
 };
 
 export const findAdjacentNote = async (
   createdAt: number,
-  direction: 'previous' | 'next'
+  direction: 'previous' | 'next',
+  actorId?: string
 ) => {
   const isPrevious = direction === 'previous';
-  const queryCondition = isPrevious ? { $lt: createdAt } : { $gt: createdAt };
-  const sortOrder = isPrevious ? -1 : 1;
-
   const adjacentNote = await NoteModel.findOne(
-    {
-      createdAt: queryCondition,
-      isDeleted: false,
-    },
-    ['_id', 'title', 'createdAt'],
-    {
-      sort: { createdAt: sortOrder },
-    }
+    readableFilter(
+      {
+        createdAt: isPrevious ? { $lt: createdAt } : { $gt: createdAt },
+      },
+      actorId
+    ),
+    ['_id', 'title', 'createdAt', 'visibility'],
+    { sort: { createdAt: isPrevious ? -1 : 1 } }
   );
 
   return adjacentNote?.toObject();
 };
 
-/**
- * 阅读笔记
- */
+/** 私密笔记不参与全局浏览量。 */
 export const viewNote = async (params: FilterQuery<NoteDocument>) => {
-  const { ip, ...restParams } = params;
-  return await NoteModel.updateOne(
-    { ...restParams, isDeleted: false, views: { $ne: ip } },
+  const { ip, ...noteFilter } = params;
+  return NoteModel.updateOne(
+    publicFilter({ ...noteFilter, views: { $ne: ip } }),
     { $push: { views: ip }, $inc: { viewCount: 1 } }
   );
 };
 
-/**
- * 修改笔记
- */
+/** 只有作者本人可以更新，包括切换 visibility。 */
 export const updateNote = async (
-  params: FilterQuery<NoteDocument>,
+  noteId: string,
+  author: string,
   update: Partial<NoteDocument>
 ) => {
-  return await NoteModel.findOneAndUpdate(
-    {
-      ...params,
-      isDeleted: false,
-    },
-    update,
+  return NoteModel.findOneAndUpdate(
+    { _id: noteId, author, isDeleted: false },
+    { ...update, updatedAt: Date.now() },
     {
       new: true,
-      projection: [
-        'title',
-        'content',
-        'createdAt',
-        'author',
-        'views',
-        'tags',
-        'bannerPath',
-      ],
-      populate: [
-        {
-          path: 'author',
-          select: ['email', 'nickname', 'lv', 'avatarPath'],
-        },
-        {
-          path: 'tags',
-          select: ['label'],
-        },
-      ],
+      projection: NOTE_PROJECTION,
+      populate: NOTE_POPULATE,
     }
   );
 };
 
-/*
- * 获取标签分类列表
- */
-export const getCategories = async () => {
-  const categories = await NoteModel.aggregate([
+/** 只有作者本人可以软删除。 */
+export const removeNote = async (noteId: string, author: string) =>
+  NoteModel.updateOne(
+    { _id: noteId, author, isDeleted: false },
+    { updatedAt: Date.now(), isDeleted: true }
+  );
+
+/** 获取当前访客可见笔记的标签聚合。 */
+export const getCategories = async (actorId?: string) => {
+  const validActorId =
+    actorId && mongoose.Types.ObjectId.isValid(actorId)
+      ? new mongoose.Types.ObjectId(actorId)
+      : undefined;
+
+  return NoteModel.aggregate([
     {
-      $match: {
-        isDeleted: false,
-      },
+      $match: readableFilter({}, validActorId),
     },
-    {
-      $unwind: '$tags',
-    },
+    { $sort: { createdAt: 1 } },
+    { $unwind: '$tags' },
     {
       $group: {
         _id: '$tags',
@@ -239,9 +193,7 @@ export const getCategories = async () => {
         as: 'latestNoteData',
       },
     },
-    {
-      $unwind: '$latestNoteData',
-    },
+    { $unwind: '$latestNoteData' },
     {
       $lookup: {
         from: 'tags',
@@ -250,9 +202,7 @@ export const getCategories = async () => {
         as: 'tagData',
       },
     },
-    {
-      $unwind: '$tagData',
-    },
+    { $unwind: '$tagData' },
     {
       $project: {
         _id: 1,
@@ -261,9 +211,10 @@ export const getCategories = async () => {
         latestNote: '$latestNoteData',
       },
     },
-    {
-      $sort: { count: -1 },
-    },
+    { $sort: { count: -1 } },
   ]);
-  return categories;
 };
+
+/** 定时统计只读取公开及历史公开数据。 */
+export const findPublicNotesForStatistics = () =>
+  NoteModel.find(publicFilter({}), ['content', 'createdAt']);

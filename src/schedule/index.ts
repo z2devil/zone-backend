@@ -1,13 +1,11 @@
 import cron from 'node-cron';
-import { default as NodeCRUD } from '../api/service/note.service';
+import { findPublicNotesForStatistics } from '../api/service/note.service';
 import { StatisticsDocument } from '../api/models/statistics.model';
 import { collect } from '../api/service/statistics.service';
 
 const collectData = async () => {
   console.log('统计数据:', new Date());
-  const notes = await NodeCRUD.find({
-    isDeleted: false,
-  });
+  const notes = await findPublicNotesForStatistics();
   const noteCount = notes.length;
   const wordCount = notes.reduce((prev, curr) => prev + curr.content.length, 0);
   const contributes: StatisticsDocument['contributes'] = [];
