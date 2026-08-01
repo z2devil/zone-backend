@@ -3,7 +3,7 @@ export default {
   port: 2333,
   // 数据库相关
   db: {
-    uri: 'mongodb://***REMOVED***:27017/blog',
+    uri: 'mongodb://mongodb:27017/blog',
     user: 'root',
     password: '***REMOVED***',
     source: 'admin',
@@ -11,7 +11,7 @@ export default {
   // redis相关
   redis: {
     port: 6379,
-    host: '***REMOVED***',
+    host: 'redis',
     db: 0,
     password: '***REMOVED***',
   },
@@ -51,5 +51,11 @@ export default {
     'token-detect-scope': 172800,
     // token秘钥
     'token-secret': '***REMOVED***',
+  },
+  // AI 相关
+  ai: {
+    baseURL: '***REMOVED***',
+    apiKey: '***REMOVED***',
+    model: 'deepseek-chat',
   },
 };
