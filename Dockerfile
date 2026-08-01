@@ -1,8 +1,8 @@
-FROM node:18.18.2-slim AS builder
+FROM node:22.20.0-slim AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
+RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 
 COPY package.json pnpm-lock.yaml tsconfig.json ./
 RUN pnpm install --frozen-lockfile
@@ -10,7 +10,7 @@ RUN pnpm install --frozen-lockfile
 COPY src ./src
 RUN pnpm build && pnpm prune --prod
 
-FROM node:18.18.2-slim AS runtime
+FROM node:22.20.0-slim AS runtime
 
 ARG APP_VERSION=dev
 ENV NODE_ENV=production \
