@@ -1,45 +1,45 @@
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
-import NOTE_CRUD, {
+import {
   createNote,
   findAdjacentNote,
   findNote,
   findNotes,
+  removeNote,
   updateNote,
   viewNote,
 } from '../service/note.service';
 
-/**
- * 查找笔记
- */
+const actorId = (res: Response): string | undefined =>
+  res.locals._context?.user.id;
+
+const disableSharedCache = (res: Response) => {
+  res.set('Cache-Control', 'private, no-store');
+  res.vary('Authorization');
+};
+
 export async function findNoteHandler(req: Request, res: Response) {
-  const [e, note] = await silentHandle(findNote, req.params);
+  disableSharedCache(res);
+  const [e, note] = await silentHandle(findNote, req.params, actorId(res));
   return e ? result.error(res, null, e.message) : result(res, note);
 }
 
-/**
- * 查找笔记列表
- */
 export async function findNotesHandler(req: Request, res: Response) {
-  const [e, notes] = await silentHandle(findNotes, req.query);
+  disableSharedCache(res);
+  const [e, notes] = await silentHandle(findNotes, req.query, actorId(res));
   return e ? result.error(res, null, e.message) : result(res, notes);
 }
 
-/**
- * 查找相邻笔记
- */
 export async function findAdjacentHandler(req: Request, res: Response) {
+  disableSharedCache(res);
+  const userId = actorId(res);
   const [e, data] = await silentHandle(async () => {
-    const note = await findNote({
-      _id: req.params._id,
-    });
-    if (!note) {
-      throw new Error('笔记不存在');
-    }
-    console.log('[ note ]', note);
+    const note = await findNote({ _id: req.params._id }, userId);
+    if (!note) throw new Error('笔记不存在');
+
     const [prevRes, nextRes] = await Promise.allSettled([
-      findAdjacentNote(note.createdAt, 'previous'),
-      findAdjacentNote(note.createdAt, 'next'),
+      findAdjacentNote(note.createdAt, 'previous', userId),
+      findAdjacentNote(note.createdAt, 'next', userId),
     ]);
     return {
       prev: prevRes.status === 'fulfilled' ? prevRes.value : null,
@@ -49,48 +49,38 @@ export async function findAdjacentHandler(req: Request, res: Response) {
   return e ? result.error(res, null, e.message) : result(res, data);
 }
 
-/**
- * 发表笔记
- */
 export async function createNoteHandler(req: Request, res: Response) {
   const params = {
     ...req.body,
-    author: res.locals._context?.user.id,
+    author: actorId(res),
   };
   const [e, note] = await silentHandle(createNote, params);
   return e ? result.error(res, null, e.message) : result(res, note);
 }
 
-/**
- * 删除笔记
- */
 export async function removeNoteHandler(req: Request, res: Response) {
-  const [e] = await silentHandle(NOTE_CRUD.delete, req.body);
+  const [e] = await silentHandle(
+    removeNote,
+    req.body._id,
+    actorId(res) as string
+  );
   return e ? result.error(res, null, e.message) : result(res, null);
 }
 
-/**
- * 阅读笔记
- */
 export async function viewNoteHandler(req: Request, res: Response) {
+  disableSharedCache(res);
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-  const [e] = await silentHandle(viewNote, { ...req.body, ip });
+  const [e] = await silentHandle(viewNote, { ...req.query, ip });
   return e ? result.error(res, null, e.message) : result(res, null);
 }
 
-/**
- * 修改笔记
- */
 export async function updateNoteHandler(req: Request, res: Response) {
+  const { _id, ...update } = req.body;
   const [e, note] = await silentHandle(
     updateNote,
-    {
-      _id: req.body._id,
-    },
-    {
-      ...req.body,
-      updatedAt: Date.now(),
-    }
+    _id,
+    actorId(res) as string,
+    update
   );
   return e ? result.error(res, null, e.message) : result(res, note);
 }

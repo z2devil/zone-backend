@@ -23,11 +23,6 @@ import {
 const router = Router();
 
 /**
- * 查找笔记
- */
-router.get('/:_id', validate(findNoteSchema), findNoteHandler);
-
-/**
  * 查找笔记列表
  */
 router.get('/', validate(findNotesSchema), findNotesHandler);
@@ -36,6 +31,16 @@ router.get('/', validate(findNotesSchema), findNotesHandler);
  * 查找相邻笔记
  */
 router.get('/adjacent/:_id', validate(findAdjacentSchema), findAdjacentHandler);
+
+/**
+ * 阅读笔记
+ */
+router.get('/view', validate(viewNoteSchema), viewNoteHandler);
+
+/**
+ * 查找笔记（动态路由必须放在静态路由之后）
+ */
+router.get('/:_id', validate(findNoteSchema), findNoteHandler);
 
 /**
  * 发表笔记
@@ -54,11 +59,6 @@ router.delete(
   validate(removeNoteSchema, Authority.admin),
   removeNoteHandler
 );
-
-/**
- * 阅读笔记
- */
-router.get('/view', validate(viewNoteSchema), viewNoteHandler);
 
 /**
  * 修改笔记

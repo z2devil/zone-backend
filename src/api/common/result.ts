@@ -3,8 +3,8 @@ import {
   RESPONSE_MESSAGE_MAP,
   ResponseType,
 } from '../../constant/code';
-import logger from '../../utils/logger';
 import { Response } from 'express';
+import { getRequestLogger } from '../../observability/request';
 
 interface IOptions {
   code?: number;
@@ -56,7 +56,14 @@ result.error = function (
   data: unknown,
   message: unknown = RESPONSE_MESSAGE_MAP[ResponseType.ERROR]
 ) {
-  logger.error(message);
+  getRequestLogger(res).error(
+    {
+      event: 'request_failed',
+      response_code: RESPONSE_CODE_MAP[ResponseType.ERROR],
+      error_type: message instanceof Error ? message.name : 'application',
+    },
+    'Request failed'
+  );
   return this(res, data, {
     code: RESPONSE_CODE_MAP[ResponseType.ERROR],
     message: message,
@@ -65,6 +72,10 @@ result.error = function (
 
 // 无权限响应
 result.denied = function (res: Response, data: unknown) {
+  getRequestLogger(res).warn(
+    { event: 'authorization_denied' },
+    'Authorization denied'
+  );
   return this(res, data, {
     code: RESPONSE_CODE_MAP[ResponseType.DENIED],
     message: RESPONSE_MESSAGE_MAP[ResponseType.DENIED],
@@ -73,6 +84,10 @@ result.denied = function (res: Response, data: unknown) {
 
 // 未授权响应
 result.unauthorized = function (res: Response, data: unknown) {
+  getRequestLogger(res).warn(
+    { event: 'authentication_required' },
+    'Authentication required'
+  );
   return this(res, data, {
     code: RESPONSE_CODE_MAP[ResponseType.UNAUTHORIZED],
     message: RESPONSE_MESSAGE_MAP[ResponseType.UNAUTHORIZED],

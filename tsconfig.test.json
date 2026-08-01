@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".test-build",
+    "target": "es2019"
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
