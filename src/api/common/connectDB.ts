@@ -10,11 +10,25 @@ export default async () => {
       authSource: config.db.source,
     });
 
-    logger.info('DB connected');
+    logger.info({ event: 'mongodb_connected' }, 'MongoDB connected');
 
     return connection;
   } catch (error) {
-    logger.error('Could not connect to db');
-    process.exit(1);
+    logger.error(
+      {
+        event: 'mongodb_connection_failed',
+        error_type: error instanceof Error ? error.name : 'unknown',
+      },
+      'Could not connect to MongoDB'
+    );
+    throw error;
   }
 };
+
+export function isMongoReady() {
+  return mongoose.connection.readyState === 1;
+}
+
+export async function disconnectDB() {
+  if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
+}

@@ -3,6 +3,8 @@ import config from '../constant/settings';
 import { jwtUtil } from '../utils';
 import { silentHandle } from '../api/common';
 import { redisUtils } from '../redis';
+import { maskIdentifier } from '../observability/logger';
+import { getRequestLogger } from '../observability/request';
 
 /**
  *  上下文处理中间件
@@ -30,6 +32,9 @@ const context = async (req: Request, res: Response, next: NextFunction) => {
       };
       // 将上下文存入res.locals
       res.locals._context = context;
+      res.locals._logger = getRequestLogger(res).child({
+        user_hash: maskIdentifier(data.id),
+      });
       // 获取缓存ttl
       const ttl = await redisUtils.getTTL(tokenKey);
       // ttl小于续期时间时，续期

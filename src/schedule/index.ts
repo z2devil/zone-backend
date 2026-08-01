@@ -2,9 +2,12 @@ import cron from 'node-cron';
 import { findPublicNotesForStatistics } from '../api/service/note.service';
 import { StatisticsDocument } from '../api/models/statistics.model';
 import { collect } from '../api/service/statistics.service';
+import logger from '../utils/logger';
+
+let statisticsTask: cron.ScheduledTask | undefined;
 
 const collectData = async () => {
-  console.log('统计数据:', new Date());
+  const startedAt = Date.now();
   const notes = await findPublicNotesForStatistics();
   const noteCount = notes.length;
   const wordCount = notes.reduce((prev, curr) => prev + curr.content.length, 0);
@@ -27,8 +30,34 @@ const collectData = async () => {
     likeCount: 0,
     contributes,
   });
+  logger.info(
+    {
+      event: 'statistics_collection_finished',
+      note_count: noteCount,
+      duration_ms: Date.now() - startedAt,
+      success: true,
+    },
+    'Statistics collection finished'
+  );
 };
 
-cron.schedule('0 * * * *', () => {
-  collectData();
-});
+export function startSchedules() {
+  if (statisticsTask) return;
+  statisticsTask = cron.schedule('0 * * * *', () => {
+    collectData().catch(error => {
+      logger.error(
+        {
+          event: 'statistics_collection_finished',
+          error_type: error instanceof Error ? error.name : 'unknown',
+          success: false,
+        },
+        'Statistics collection failed'
+      );
+    });
+  });
+}
+
+export function stopSchedules() {
+  statisticsTask?.stop();
+  statisticsTask = undefined;
+}
