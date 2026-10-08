@@ -31,7 +31,6 @@
     "@commitlint/config-conventional": "^17.6.3",
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/mongoose": "^5.11.97",
     "@types/node": "^17.0.29",
     "@types/nodemailer": "^6.4.4",
     "@types/pino": "^7.0.5",
