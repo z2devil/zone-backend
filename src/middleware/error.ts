@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { result } from '../api/common';
 import { getRequestLogger } from '../observability/request';
+import {
+  RESPONSE_CODE_MAP,
+  RESPONSE_MESSAGE_MAP,
+  ResponseType,
+} from '../constant/code';
 
 /**
  * 包装异步中间件/处理器，把 rejected Promise 交给 Express 错误处理链
@@ -26,6 +31,22 @@ export function errorHandler(
   next: NextFunction
 ) {
   if (res.headersSent) return next(error);
+
+  // body-parser 抛出的请求体错误属于客户端错误
+  const type = (error as { type?: string } | null)?.type;
+  if (type === 'entity.too.large') {
+    return result(res, null, {
+      code: RESPONSE_CODE_MAP[ResponseType.PAYLOAD_TOO_LARGE],
+      message: RESPONSE_MESSAGE_MAP[ResponseType.PAYLOAD_TOO_LARGE],
+    });
+  }
+  if (type === 'entity.parse.failed') {
+    return result(res, null, {
+      code: RESPONSE_CODE_MAP[ResponseType.ERROR],
+      message: '请求体不是合法的 JSON',
+    });
+  }
+
   getRequestLogger(res).error(
     {
       event: 'request_unhandled_error',
