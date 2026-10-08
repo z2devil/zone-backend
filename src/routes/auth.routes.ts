@@ -5,6 +5,7 @@ import {
   signHandler,
   sendCodeHandler,
   infoHandler,
+  logoutHandler,
 } from '../api/controller/auth.controller';
 import { Authority } from '../constant/authority';
 import { byEmail, byIp, createRateLimit } from '../middleware/limit';
@@ -65,5 +66,10 @@ router.post(
  * 获取用户信息
  */
 router.get('/info', validate(null, Authority.login), asyncHandler(infoHandler));
+
+/**
+ * 退出登录（需登录，作废当前 token）
+ */
+router.post('/logout', asyncHandler(logoutHandler));
 
 export default router;

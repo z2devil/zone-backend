@@ -63,8 +63,8 @@ export function loadSettings(env: Env = process.env) {
       header: 'authorization',
       // 验证码前缀 在redis中存储数据的key前缀，例：code-user@example.com
       'code-prefix': 'code-',
-      // token前缀 在redis中存储数据的key前缀，例：token-1
-      'token-prefix': 'token-',
+      // 会话前缀 在redis中存储会话白名单的key前缀，例：session:<sid>
+      'session-prefix': 'session:',
       // 验证码发送冷却时间 此处单位/秒 ，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
       'code-cooling-time': 60,
       // 验证码过期时间
@@ -73,8 +73,10 @@ export function loadSettings(env: Env = process.env) {
       'code-length': 6,
       // 单个验证码允许的校验次数，用尽即作废
       'code-life-number': 3,
-      // 验证码过期时间
+      // 会话不活跃过期时间（30 天，访问时按续期规则滑动）
       'token-expire-time': 2592000,
+      // token 绝对有效期（JWT exp，90 天），到期后必须重新登录
+      'token-max-age': 7776000,
       // token 续期检查时间范围 在token即将过期的一段时间内用户操作了，则给用户的token续期
       'token-detect-scope': 172800,
       // token秘钥

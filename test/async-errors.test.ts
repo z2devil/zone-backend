@@ -48,7 +48,11 @@ async function verifyMailFailure() {
 }
 
 async function verifyRedisUnavailableInContext() {
-  const token = jwtUtil.create({ id: 'user-1', email: 'ctx@zone.local' });
+  const token = jwtUtil.create({
+    id: 'user-1',
+    email: 'ctx@zone.local',
+    sid: 'a'.repeat(32),
+  });
   redis.failing = true;
   try {
     await withServer(createApp(), async baseURL => {

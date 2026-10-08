@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { result, silentHandle, throwHandle } from '../common';
 import USER_CRUD, { findUsers } from '../service/user.service';
-import { redisUtils } from '../../redis';
-import config from '../../constant/settings';
 
 /**
  * 创建用户
@@ -46,8 +44,8 @@ export async function updateUserHandler(req: Request, res: Response) {
       return result.error(res, null, '更新失败');
     }
     const { email, lv, nickname, avatarPath } = user;
-    // 从缓存获取token
-    const token = await redisUtils.get(config.auth['token-prefix'] + email);
+    // 返回当前请求携带的会话 token
+    const token = res.locals._context?.token;
     // 对结果赋值
     data = {
       info: {

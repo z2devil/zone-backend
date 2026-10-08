@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
 import { result, throwHandle } from '../../api/common';
 import config from '../../constant/settings';
-import { redisUtils } from '../../redis';
-import { jwtUtil } from '../../utils';
 import emailer from '../../utils/emailUtil';
 import USER_CRUD from '../../api/service/user.service';
 import { toAuthUserInfo } from './auth.presenter';
 import { issueCode, revokeCode, verifyCode } from '../service/auth.code';
 import { getRequestLogger } from '../../observability/request';
+import { createSession, revokeSession } from '../service/auth.session';
 
 /**
  * 发送验证码
@@ -76,16 +75,11 @@ export async function signHandler(req: Request, res: Response) {
         email,
       });
     }
-    // 从缓存获取 token
-    let token = await redisUtils.get(config.auth['token-prefix'] + email);
-    if (!token) {
-      // 生成token
-      token = jwtUtil.create({ email, id: user._id });
-      // 将token存入缓存
-      await redisUtils.set(config.auth['token-prefix'] + email, token, {
-        EX: config.auth['token-expire-time'],
-      });
-    }
+    // 每次登录签发独立会话 token
+    const token = await createSession({
+      id: String(user._id),
+      email: user.email,
+    });
     // 获取用户部分属性
     // 对结果赋值
     data = {
@@ -109,10 +103,8 @@ export async function infoHandler(req: Request, res: Response) {
     // 根据email查询用户信息
     const user = await throwHandle(USER_CRUD.findOne, _user);
     if (!user) return result.error(res, null, '用户不存在');
-    // 获取用户部分属性
-    const { email } = user;
-    // 从缓存获取token
-    const token = await redisUtils.get(config.auth['token-prefix'] + email);
+    // 返回当前请求携带的会话 token
+    const token = res.locals._context?.token;
     // 对结果赋值
     data = {
       info: toAuthUserInfo(user),
@@ -122,4 +114,14 @@ export async function infoHandler(req: Request, res: Response) {
     return result.error(res, null, e.message);
   }
   return result(res, data);
+}
+
+/**
+ * 退出登录：作废当前请求携带的 token
+ */
+export async function logoutHandler(req: Request, res: Response) {
+  const sid = res.locals._context?.sid;
+  if (!sid) return result.unauthorized(res, null);
+  await revokeSession(sid);
+  return result(res, null);
 }

@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import config from '../constant/settings';
-import { jwtUtil } from '../utils';
-import { result, silentHandle } from '../api/common';
-import { redisUtils } from '../redis';
+import { result } from '../api/common';
+import { resolveSession } from '../api/service/auth.session';
 import { maskIdentifier } from '../observability/logger';
 import { getRequestLogger } from '../observability/request';
 
@@ -10,39 +9,25 @@ import { getRequestLogger } from '../observability/request';
  *  上下文处理中间件
  */
 const context = async (req: Request, res: Response, next: NextFunction) => {
-  // 从请求头获取token
-  const token = req.headers[config.auth.header];
+  // 从请求头获取token（与前端约定：Authorization 直接携带 token，无 Bearer 前缀）
+  const header = req.headers[config.auth.header];
+  const token = Array.isArray(header) ? header[0] : header;
   if (!token) {
     return next();
   }
-  // 校验token
-  const [e, data] = await silentHandle(
-    jwtUtil.verify,
-    Array.isArray(token) ? token[0] : token
-  );
-  // 校验失败时按未登录处理
-  if (e || !data || typeof data === 'string' || !data.id || !data.email) {
-    return next();
-  }
   try {
-    const tokenKey = config.auth['token-prefix'] + data.email;
-    const redisToken = await redisUtils.get(tokenKey);
-    // 缓存匹配时
-    if (redisToken && redisToken === token) {
-      const context = {
-        user: data,
-      };
+    const session = await resolveSession(token);
+    // 校验失败时按未登录处理
+    if (session) {
       // 将上下文存入res.locals
-      res.locals._context = context;
+      res.locals._context = {
+        user: session.user,
+        sid: session.sid,
+        token,
+      };
       res.locals._logger = getRequestLogger(res).child({
-        user_hash: maskIdentifier(data.id),
+        user_hash: maskIdentifier(session.user.id),
       });
-      // 获取缓存ttl
-      const ttl = await redisUtils.getTTL(tokenKey);
-      // ttl小于续期时间时，续期
-      if (ttl > 0 && ttl < config.auth['token-detect-scope']) {
-        await redisUtils.setTTL(tokenKey, config.auth['token-expire-time']);
-      }
     }
   } catch (error) {
     // 会话存储不可用时无法判断登录态：返回 500，避免前端误判为登录失效
