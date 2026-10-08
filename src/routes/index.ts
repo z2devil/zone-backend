@@ -3,7 +3,6 @@ import { result } from '../api/common';
 import user from './user.routes';
 import role from './role.routes';
 import permission from './permission.routes';
-import power from './config.routes';
 import auth from './auth.routes';
 import note from './note.routes';
 import tag from './tag.routes';
@@ -26,7 +25,6 @@ const routerConf: Array<RouterConf> = [
   { path: '/user', router: user },
   { path: '/role', router: role },
   { path: '/permission', router: permission },
-  { path: '/power', router: power },
   { path: '/auth', router: auth },
   { path: '/note', router: note },
   { path: '/tag', router: tag },
