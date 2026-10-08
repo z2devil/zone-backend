@@ -16,7 +16,14 @@ export interface UserDocument extends BaseDocument {
 
 // 模板校验规则
 const userSchema = schemaFactory({
-  email: { type: String, required: true, unique: true },
+  // 邮箱统一 trim + 小写，查询条件同样会经过该 setter
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
   avatarPath: {
     type: String,
     required: false,
