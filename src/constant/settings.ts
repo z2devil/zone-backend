@@ -70,8 +70,8 @@ export function loadSettings(env: Env = process.env) {
       // 验证码过期时间
       'code-expire-time': 900,
       // 验证码长度
-      'code-length': 4,
-      // 验证码生命条数
+      'code-length': 6,
+      // 单个验证码允许的校验次数，用尽即作废
       'code-life-number': 3,
       // 验证码过期时间
       'token-expire-time': 2592000,

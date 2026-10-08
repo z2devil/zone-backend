@@ -1,3 +1,5 @@
+import { randomInt } from 'crypto';
+
 export default {
   // 昵称
   nickname: () => {
@@ -11,17 +13,11 @@ export default {
   avatarPath: () => {
     return avatarPathLibrary[~~(Math.random() * avatarPathLibrary.length)];
   },
-  // 验证码
-  CAPTCHA: (length = 4) => {
-    const chars = '1234567890';
-    let res = '';
-    const len = chars.length - 1;
-    let idx;
-    for (let i = 0; i < length; i++) {
-      idx = Math.random() * len;
-      res = res + chars.charAt(idx);
-    }
-    return res;
+  // 验证码：使用加密随机数，生成定长纯数字
+  CAPTCHA: (length = 6) => {
+    return randomInt(0, 10 ** length)
+      .toString()
+      .padStart(length, '0');
   },
 };
 
