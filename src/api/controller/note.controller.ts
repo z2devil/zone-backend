@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { result, silentHandle } from '../common';
 import {
+  RESPONSE_CODE_MAP,
+  RESPONSE_MESSAGE_MAP,
+  ResponseType,
+} from '../../constant/code';
+import {
   createNote,
   findAdjacentNote,
   findNote,
@@ -12,6 +17,13 @@ import {
 
 const actorId = (res: Response): string | undefined =>
   res.locals._context?.user.id;
+
+/** 不存在与无权使用同一响应，避免泄露资源是否存在。 */
+const notFound = (res: Response) =>
+  result(res, null, {
+    code: RESPONSE_CODE_MAP[ResponseType.NOT_FOUND],
+    message: RESPONSE_MESSAGE_MAP[ResponseType.NOT_FOUND],
+  });
 
 const disableSharedCache = (res: Response) => {
   res.set('Cache-Control', 'private, no-store');
@@ -59,12 +71,13 @@ export async function createNoteHandler(req: Request, res: Response) {
 }
 
 export async function removeNoteHandler(req: Request, res: Response) {
-  const [e] = await silentHandle(
+  const [e, removed] = await silentHandle(
     removeNote,
     req.body._id,
     actorId(res) as string
   );
-  return e ? result.error(res, null, e.message) : result(res, null);
+  if (e) return result.error(res, null, e.message);
+  return removed ? result(res, null) : notFound(res);
 }
 
 export async function viewNoteHandler(req: Request, res: Response) {
@@ -82,5 +95,6 @@ export async function updateNoteHandler(req: Request, res: Response) {
     actorId(res) as string,
     update
   );
-  return e ? result.error(res, null, e.message) : result(res, note);
+  if (e) return result.error(res, null, e.message);
+  return note ? result(res, note) : notFound(res);
 }

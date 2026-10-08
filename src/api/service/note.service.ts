@@ -197,12 +197,14 @@ export const updateNote = async (
   );
 };
 
-/** 只有作者本人可以软删除。 */
-export const removeNote = async (noteId: string, author: string) =>
-  NoteModel.updateOne(
+/** 只有作者本人可以软删除。返回是否命中（不存在与无权不区分）。 */
+export const removeNote = async (noteId: string, author: string) => {
+  const { matchedCount } = await NoteModel.updateOne(
     { _id: noteId, author, isDeleted: false },
     { updatedAt: Date.now(), isDeleted: true }
   );
+  return matchedCount > 0;
+};
 
 /** 获取当前访客可见笔记的标签聚合。 */
 export const getCategories = async (actorId?: string) => {

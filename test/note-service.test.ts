@@ -57,7 +57,7 @@ async function run() {
     let removeQuery: any;
     model.updateOne = (filter: unknown) => {
       removeQuery = filter;
-      return Promise.resolve(null);
+      return Promise.resolve({ matchedCount: 1 });
     };
     await removeNote('note-1', 'user-1');
     assert.deepStrictEqual(removeQuery, {
