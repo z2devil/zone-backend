@@ -1,5 +1,6 @@
 import assert from 'assert';
 import userRouter from '../src/routes/user.routes';
+import tagRouter from '../src/routes/tag.routes';
 import { callRoute, CODE } from './helpers/route-harness';
 
 const page = { current: '1', size: '10' };
@@ -40,6 +41,24 @@ async function run() {
     body: { nickname: 'n' },
   });
   assert.strictEqual(r.passed, true);
+
+  // 标签：读取保持公开，增/改/删需要管理员
+  r = await callRoute(tagRouter, 'get', '/', { lv: null, query: page });
+  assert.strictEqual(r.passed, true);
+  const tagWrites: Array<['post' | 'put' | 'delete', Record<string, unknown>]> =
+    [
+      ['post', { label: 'tag' }],
+      ['put', { _id: 'tag-1', label: 'tag' }],
+      ['delete', { _id: 'tag-1' }],
+    ];
+  for (const [method, tagBody] of tagWrites) {
+    r = await callRoute(tagRouter, method, '/', { lv: null, body: tagBody });
+    assert.strictEqual(r.code, CODE.unauthorized, `${method} /tag anonymous`);
+    r = await callRoute(tagRouter, method, '/', { lv: 1, body: tagBody });
+    assert.strictEqual(r.code, CODE.denied, `${method} /tag login`);
+    r = await callRoute(tagRouter, method, '/', { lv: 2, body: tagBody });
+    assert.strictEqual(r.passed, true, `${method} /tag admin`);
+  }
 }
 
 run()

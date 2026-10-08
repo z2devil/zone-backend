@@ -11,15 +11,20 @@ import {
   findTagHandler,
   deleteTagHandler,
 } from '../api/controller/tag.controller';
+import { Authority } from '../constant/authority';
 
 const router = Router();
 
 router.get('/', validate(findTagSchema), findTagHandler);
 
-router.post('/', validate(createTagSchema), createTagHandler);
+router.post('/', validate(createTagSchema, Authority.admin), createTagHandler);
 
-router.put('/', validate(putTagSchema), createTagHandler);
+router.put('/', validate(putTagSchema, Authority.admin), createTagHandler);
 
-router.delete('/', validate(deleteTagSchema), deleteTagHandler);
+router.delete(
+  '/',
+  validate(deleteTagSchema, Authority.admin),
+  deleteTagHandler
+);
 
 export default router;
