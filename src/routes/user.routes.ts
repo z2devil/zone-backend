@@ -19,12 +19,16 @@ const router = Router();
 /**
  * 创建用户
  */
-router.post('/', validate(createUserSchema), createUserHandler);
+router.post(
+  '/',
+  validate(createUserSchema, Authority.admin),
+  createUserHandler
+);
 
 /**
  * 查找用户
  */
-router.get('/', validate(findUserSchema), findUserHandler);
+router.get('/', validate(findUserSchema, Authority.admin), findUserHandler);
 
 /**
  * 删除用户
@@ -44,10 +48,5 @@ router.get(
   validate(findUserListSchema, Authority.admin),
   findUserListHandler
 );
-
-/**
- * 测试权限
- */
-router.get('/test', validate(findUserSchema, Authority.login), findUserHandler);
 
 export default router;
