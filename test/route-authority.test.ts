@@ -1,6 +1,7 @@
 import assert from 'assert';
 import userRouter from '../src/routes/user.routes';
 import tagRouter from '../src/routes/tag.routes';
+import roleRouter from '../src/routes/role.routes';
 import { callRoute, CODE } from './helpers/route-harness';
 
 const page = { current: '1', size: '10' };
@@ -59,6 +60,34 @@ async function run() {
     r = await callRoute(tagRouter, method, '/', { lv: 2, body: tagBody });
     assert.strictEqual(r.passed, true, `${method} /tag admin`);
   }
+
+  // 角色权限：读取与设置均需管理员，并校验参数
+  const roleId = '64b7f0c2a1b2c3d4e5f60718';
+  const permissionId = '64b7f0c2a1b2c3d4e5f60719';
+  const params = { roleId };
+  const permBody = { roleId, permissionIds: [permissionId] };
+  for (const method of ['get', 'put'] as const) {
+    const body = method === 'put' ? permBody : undefined;
+    const path = '/:roleId/permission';
+    r = await callRoute(roleRouter, method, path, { lv: null, params, body });
+    assert.strictEqual(r.code, CODE.unauthorized, `${method} role perm anon`);
+    r = await callRoute(roleRouter, method, path, { lv: 1, params, body });
+    assert.strictEqual(r.code, CODE.denied, `${method} role perm login`);
+    r = await callRoute(roleRouter, method, path, { lv: 2, params, body });
+    assert.strictEqual(r.passed, true, `${method} role perm admin`);
+    r = await callRoute(roleRouter, method, path, {
+      lv: 2,
+      params: { roleId: 'not-an-id' },
+      body,
+    });
+    assert.strictEqual(r.code, CODE.error, `${method} role perm bad id`);
+  }
+  r = await callRoute(roleRouter, 'put', '/:roleId/permission', {
+    lv: 2,
+    params,
+    body: { permissionIds: 'x' },
+  });
+  assert.strictEqual(r.code, CODE.error, 'put role perm bad body');
 }
 
 run()

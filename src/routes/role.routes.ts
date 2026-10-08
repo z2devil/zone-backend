@@ -3,7 +3,9 @@ import validate from '../middleware/validate';
 import {
   createRoleSchema,
   findRoleSchema,
+  getRolePermissionSchema,
   updateRoleSchema,
+  updateRolePermissionSchema,
 } from '../api/schema/role.schema';
 import { Authority } from '../constant/authority';
 import {
@@ -48,11 +50,19 @@ router.put('/', validate(updateRoleSchema, Authority.admin), updateRoleHandler);
 /**
  * 获取角色权限列表
  */
-router.get('/:roleId/permission', getRolePermissionListHandler);
+router.get(
+  '/:roleId/permission',
+  validate(getRolePermissionSchema, Authority.admin),
+  getRolePermissionListHandler
+);
 
 /**
  * 设置角色权限
  */
-router.put('/:roleId/permission', updateRolePermissionHandler);
+router.put(
+  '/:roleId/permission',
+  validate(updateRolePermissionSchema, Authority.admin),
+  updateRolePermissionHandler
+);
 
 export default router;
