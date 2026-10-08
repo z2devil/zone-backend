@@ -230,8 +230,17 @@ export const getCategories = async (actorId?: string) => {
     {
       $lookup: {
         from: 'tags',
-        localField: '_id',
-        foreignField: '_id',
+        let: { tagId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$tagId'] },
+              // 已删除标签不出现在分类中；缺少字段的历史标签视为未删除。
+              isDeleted: { $ne: true },
+            },
+          },
+          { $project: { label: 1 } },
+        ],
         as: 'tagData',
       },
     },

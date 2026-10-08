@@ -25,6 +25,27 @@ async function run() {
       $last: { _id: '$_id', title: '$title' },
     });
 
+    // 已删除标签不出现在分类中。
+    const tagLookup = pipeline.find(
+      stage => stage.$lookup && stage.$lookup.from === 'tags'
+    )?.$lookup;
+    assert.deepStrictEqual(tagLookup, {
+      from: 'tags',
+      let: { tagId: '$_id' },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ['$_id', '$$tagId'] },
+            isDeleted: { $ne: true },
+          },
+        },
+        { $project: { label: 1 } },
+      ],
+      as: 'tagData',
+    });
+    // 标签已删除时 tagData 为空，$unwind 会丢弃该分类。
+    assert.ok(pipeline.some(stage => stage.$unwind === '$tagData'));
+
     const project = pipeline.find(stage => stage.$project)?.$project;
     assert.strictEqual(project.latestNote, '$latestNote');
   } finally {
