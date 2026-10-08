@@ -13,8 +13,10 @@ enum ResponseType {
 const RESPONSE_CODE_MAP = {
   [ResponseType.SUCCESS]: 200,
   [ResponseType.ERROR]: 400,
-  [ResponseType.DENIED]: 401,
-  [ResponseType.UNAUTHORIZED]: 403,
+  // 已登录但权限不足
+  [ResponseType.DENIED]: 403,
+  // 未登录、token 无效或已过期
+  [ResponseType.UNAUTHORIZED]: 401,
   [ResponseType.NOT_FOUND]: 404,
   [ResponseType.BAD_REQUEST]: 409,
   [ResponseType.TOO_MANY_REQUESTS]: 429,
@@ -26,7 +28,7 @@ const RESPONSE_MESSAGE_MAP = {
   [ResponseType.SUCCESS]: '请求成功',
   [ResponseType.ERROR]: '请求出错',
   [ResponseType.DENIED]: '无权限',
-  [ResponseType.UNAUTHORIZED]: '未授权访问',
+  [ResponseType.UNAUTHORIZED]: '未登录或登录已过期',
   [ResponseType.NOT_FOUND]: '资源未找到',
   [ResponseType.BAD_REQUEST]: '无效的请求',
   [ResponseType.TOO_MANY_REQUESTS]: '请求过于频繁',
