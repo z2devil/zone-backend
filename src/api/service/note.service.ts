@@ -182,18 +182,10 @@ export const getCategories = async (actorId?: string) => {
       $group: {
         _id: '$tags',
         count: { $sum: 1 },
-        latestNoteId: { $last: '$_id' },
+        // 分类卡片只展示最新笔记标题，不返回正文、浏览量等内部字段。
+        latestNote: { $last: { _id: '$_id', title: '$title' } },
       },
     },
-    {
-      $lookup: {
-        from: 'notes',
-        localField: 'latestNoteId',
-        foreignField: '_id',
-        as: 'latestNoteData',
-      },
-    },
-    { $unwind: '$latestNoteData' },
     {
       $lookup: {
         from: 'tags',
@@ -208,7 +200,7 @@ export const getCategories = async (actorId?: string) => {
         _id: 1,
         label: '$tagData.label',
         count: 1,
-        latestNote: '$latestNoteData',
+        latestNote: '$latestNote',
       },
     },
     { $sort: { count: -1 } },
