@@ -11,6 +11,6 @@ export default {
     app.use(express.json());
     app.use(context);
     app.use(response);
-    // app.use(limit);
+    app.use('/api', limit);
   },
 };

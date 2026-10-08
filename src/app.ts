@@ -14,6 +14,9 @@ const SHUTDOWN_TIMEOUT_MS = 10_000;
 
 export function createApp(): Express {
   const app = express();
+  // 生产部署在一层反向代理之后：只信任最近一跳追加的 X-Forwarded-For，
+  // 客户端自带的伪造前缀不会影响 req.ip
+  app.set('trust proxy', 1);
   middleware.init(app);
   registerHealthRoutes(app, { isMongoReady, isRedisReady });
   routes(app);
