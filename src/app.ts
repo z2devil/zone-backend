@@ -7,7 +7,7 @@ import middleware from './middleware';
 import { errorHandler } from './middleware/error';
 import { connectDB } from './api/common';
 import { disconnectDB, isMongoReady } from './api/common/connectDB';
-import getRedisClient, { disconnectRedis, isRedisReady } from './redis/client';
+import { connectRedis, disconnectRedis, isRedisReady } from './redis/client';
 import { registerHealthRoutes } from './observability/health';
 import { startSchedules, stopSchedules } from './schedule';
 
@@ -26,7 +26,7 @@ export function createApp(): Express {
 }
 
 async function connectDependencies() {
-  await Promise.all([connectDB(), getRedisClient()]);
+  await Promise.all([connectDB(), connectRedis()]);
 }
 
 async function disconnectDependencies() {
