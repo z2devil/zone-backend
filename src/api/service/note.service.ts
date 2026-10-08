@@ -129,21 +129,27 @@ export const findNotes = async (
   };
 };
 
+/** 按 (createdAt, _id) 复合顺序取相邻笔记，createdAt 相同时不会被跳过。 */
 export const findAdjacentNote = async (
-  createdAt: number,
+  current: { _id: unknown; createdAt: number },
   direction: 'previous' | 'next',
   actorId?: string
 ) => {
   const isPrevious = direction === 'previous';
+  const op = isPrevious ? '$lt' : '$gt';
+  const order = isPrevious ? -1 : 1;
   const adjacentNote = await NoteModel.findOne(
     readableFilter(
       {
-        createdAt: isPrevious ? { $lt: createdAt } : { $gt: createdAt },
+        $or: [
+          { createdAt: { [op]: current.createdAt } },
+          { createdAt: current.createdAt, _id: { [op]: current._id } },
+        ],
       },
       actorId
     ),
     ['_id', 'title', 'createdAt', 'visibility'],
-    { sort: { createdAt: isPrevious ? -1 : 1 } }
+    { sort: { createdAt: order, _id: order } }
   );
 
   return adjacentNote?.toObject();

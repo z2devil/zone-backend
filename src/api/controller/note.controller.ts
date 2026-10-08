@@ -48,10 +48,11 @@ export async function findAdjacentHandler(req: Request, res: Response) {
   const [e, data] = await silentHandle(async () => {
     const note = await findNote({ _id: req.params._id }, userId);
     if (!note) throw new Error('笔记不存在');
+    const current = { _id: note._id, createdAt: note.createdAt };
 
     const [prevRes, nextRes] = await Promise.allSettled([
-      findAdjacentNote(note.createdAt, 'previous', userId),
-      findAdjacentNote(note.createdAt, 'next', userId),
+      findAdjacentNote(current, 'previous', userId),
+      findAdjacentNote(current, 'next', userId),
     ]);
     return {
       prev: prevRes.status === 'fulfilled' ? prevRes.value : null,
