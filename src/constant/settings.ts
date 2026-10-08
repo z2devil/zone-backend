@@ -1,7 +1,7 @@
 type Env = Record<string, string | undefined>;
 
 /**
- * 必须通过环境变量注入的密钥，生产环境缺失任意一项都拒绝启动。
+ * 必须通过环境变量注入的密钥与部署相关配置，生产环境缺失任意一项都拒绝启动。
  * 变量说明见仓库根目录 .env.example。
  */
 export const REQUIRED_SECRET_ENV = [
@@ -9,8 +9,10 @@ export const REQUIRED_SECRET_ENV = [
   'REDIS_PASSWORD',
   'OSS_ACCESS_KEY_ID',
   'OSS_ACCESS_KEY_SECRET',
+  'SMTP_USERNAME',
   'SMTP_PASSWORD',
   'JWT_SECRET',
+  'AI_BASE_URL',
   'AI_API_KEY',
 ] as const;
 
@@ -68,7 +70,7 @@ export function loadSettings(env: Env = process.env) {
     // 邮箱相关
     mail: {
       host: 'smtp.qq.com',
-      username: 'user@example.com',
+      username: secret('SMTP_USERNAME'),
       password: secret('SMTP_PASSWORD'),
     },
     // 认证相关
@@ -99,7 +101,7 @@ export function loadSettings(env: Env = process.env) {
     },
     // AI 相关
     ai: {
-      baseURL: '***REMOVED***',
+      baseURL: secret('AI_BASE_URL'),
       apiKey: secret('AI_API_KEY'),
       model: 'deepseek-chat',
     },

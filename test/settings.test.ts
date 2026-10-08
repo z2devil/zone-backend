@@ -30,6 +30,8 @@ assert.strictEqual(
 assert.strictEqual(production.mail.password, 'test-smtp_password');
 assert.strictEqual(production.auth['token-secret'], 'test-jwt_secret');
 assert.strictEqual(production.ai.apiKey, 'test-ai_api_key');
+assert.strictEqual(production.mail.username, 'test-smtp_username');
+assert.strictEqual(production.ai.baseURL, 'test-ai_base_url');
 
 // 非生产环境不依赖真实密钥也能加载
 const development = loadSettings({ NODE_ENV: 'test' });
@@ -45,5 +47,8 @@ assert.doesNotMatch(source, /password:\s*'[^']+'/);
 assert.doesNotMatch(source, /'access-key-(id|secret)':\s*'[^']+'/);
 assert.doesNotMatch(source, /apiKey:\s*'[^']+'/);
 assert.doesNotMatch(source, /'token-secret':\s*'[^']+'/);
+// 发件邮箱与 AI 网关地址同样只从环境变量读取
+assert.doesNotMatch(source, /username:\s*'[^']+'/);
+assert.doesNotMatch(source, /baseURL:\s*'[^']+'/);
 
 console.log('settings contract: passed');
