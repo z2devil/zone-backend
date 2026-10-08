@@ -43,6 +43,17 @@ const toNoteObject = (note: NoteDocument | null) =>
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+/**
+ * 正文以 Slate JSON 字符串存储，只在 "text" 叶子节点的值内匹配，
+ * 避免命中 type/children 等结构字段。搜索词按 JSON 规则转义，与存储形式一致。
+ */
+const buildContentSearch = (keyword: string) =>
+  new RegExp(
+    '"text":"(?:[^"\\\\]|\\\\.)*' +
+      escapeRegExp(JSON.stringify(keyword).slice(1, -1)),
+    'i'
+  );
+
 const readableFilter = (filter: FilterQuery<NoteDocument>, actorId?: unknown) =>
   withNoteScope(
     { ...filter, isDeleted: false },
@@ -85,8 +96,11 @@ export const findNotes = async (
   const baseFilter: FilterQuery<NoteDocument> = {};
 
   if (params.search) {
-    const search = new RegExp(escapeRegExp(String(params.search)), 'i');
-    baseFilter.$or = [{ summary: search }, { title: search }];
+    const keyword = String(params.search);
+    baseFilter.$or = [
+      { title: new RegExp(escapeRegExp(keyword), 'i') },
+      { content: buildContentSearch(keyword) },
+    ];
   }
 
   if (params.tags) {
