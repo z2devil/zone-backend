@@ -26,7 +26,9 @@ export async function findRoleHandler(req: Request, res: Response) {
  * 删除角色
  */
 export async function removeRoleHandler(req: Request, res: Response) {
-  const [e, role] = await silentHandle(ROLE_CRUD.delete, req.query);
+  const [e, role] = await silentHandle(ROLE_CRUD.delete, {
+    _id: req.body._id,
+  });
   return e ? result.error(res, null, e.message) : result(res, role);
 }
 

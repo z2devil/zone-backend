@@ -88,6 +88,25 @@ async function run() {
     body: { permissionIds: 'x' },
   });
   assert.strictEqual(r.code, CODE.error, 'put role perm bad body');
+
+  // 删除角色：只接受 body._id，分页参数或空条件不能触发删除
+  r = await callRoute(roleRouter, 'delete', '/', {
+    lv: null,
+    body: { _id: roleId },
+  });
+  assert.strictEqual(r.code, CODE.unauthorized, 'delete role anon');
+  r = await callRoute(roleRouter, 'delete', '/', { lv: 2, query: page });
+  assert.strictEqual(r.code, CODE.error, 'delete role by page');
+  r = await callRoute(roleRouter, 'delete', '/', {
+    lv: 2,
+    body: { _id: roleId, name: 'x' },
+  });
+  assert.strictEqual(r.code, CODE.error, 'delete role extra field');
+  r = await callRoute(roleRouter, 'delete', '/', {
+    lv: 2,
+    body: { _id: roleId },
+  });
+  assert.strictEqual(r.passed, true, 'delete role by id');
 }
 
 run()

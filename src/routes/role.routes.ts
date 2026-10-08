@@ -4,6 +4,7 @@ import {
   createRoleSchema,
   findRoleSchema,
   getRolePermissionSchema,
+  removeRoleSchema,
   updateRoleSchema,
   updateRolePermissionSchema,
 } from '../api/schema/role.schema';
@@ -38,7 +39,7 @@ router.get('/', validate(findRoleSchema, Authority.admin), findRoleHandler);
  */
 router.delete(
   '/',
-  validate(findRoleSchema, Authority.admin),
+  validate(removeRoleSchema, Authority.admin),
   removeRoleHandler
 );
 

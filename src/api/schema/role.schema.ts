@@ -17,6 +17,13 @@ export const findRoleSchema = object({
   ),
 });
 
+// 删除
+export const removeRoleSchema = object({
+  body: object({
+    _id: string({ required_error: '缺少 _id' }).min(1),
+  }).strict(),
+});
+
 // 更新
 export const updateRoleSchema = object({
   body: object({

@@ -14,6 +14,23 @@ class BaseCrudProviderCls<document, Cdocument> {
   }
 
   /**
+   * 写操作的过滤条件：只保留 schema 内且有值的字段。
+   * Mongoose 会静默剔除未知字段，若剔除后为空将命中整个集合，因此直接拒绝。
+   */
+  private requireFilter(query: FilterQuery<document>) {
+    const filter: Record<string, unknown> = {};
+    Object.entries(query || {}).forEach(([key, value]) => {
+      if (value !== undefined && this.DBModel.schema.path(key)) {
+        filter[key] = value;
+      }
+    });
+    if (Object.keys(filter).length === 0) {
+      throw new Error('缺少有效的过滤条件，拒绝批量写入');
+    }
+    return filter as FilterQuery<document>;
+  }
+
+  /**
    * 新增
    */
   async create(input: Partial<DocumentDefinition<Cdocument>>) {
@@ -51,8 +68,9 @@ class BaseCrudProviderCls<document, Cdocument> {
     update: UpdateQuery<document>,
     options?: QueryOptions
   ) {
+    const filter = this.requireFilter(query);
     return await this.DBModel.updateMany(
-      { ...query, isDeleted: false },
+      { ...filter, isDeleted: false },
       {
         ...update,
         updatedAt: Date.now(),
@@ -151,7 +169,8 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 删除
    */
   async delete(query: FilterQuery<document>) {
-    return await this.DBModel.where(query).updateMany({
+    const filter = this.requireFilter(query);
+    return await this.DBModel.updateMany(filter, {
       updatedAt: Date.now(),
       isDeleted: true,
     });
