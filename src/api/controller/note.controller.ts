@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { result, silentHandle } from '../common';
+import { BusinessError, result, silentHandle } from '../common';
 import {
   RESPONSE_CODE_MAP,
   RESPONSE_MESSAGE_MAP,
@@ -47,7 +47,7 @@ export async function findAdjacentHandler(req: Request, res: Response) {
   const userId = actorId(res);
   const [e, data] = await silentHandle(async () => {
     const note = await findNote({ _id: req.params._id }, userId);
-    if (!note) throw new Error('笔记不存在');
+    if (!note) throw new BusinessError('笔记不存在');
     const current = { _id: note._id, createdAt: note.createdAt };
 
     const [prevRes, nextRes] = await Promise.allSettled([

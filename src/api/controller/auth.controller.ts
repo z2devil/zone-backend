@@ -50,70 +50,55 @@ export async function sendCodeHandler(req: Request, res: Response) {
  * 登录或注册
  */
 export async function signHandler(req: Request, res: Response) {
-  let data: object;
-  try {
-    // 获取请求参数
-    const { email, code } = req.body;
-    const verified = await verifyCode(email, code);
-    if (verified.status === 'invalid') {
-      return result.error(
-        res,
-        null,
-        `验证码错误, 您还有${verified.remaining}次机会`
-      );
-    }
-    if (verified.status === 'exhausted') {
-      return result.error(res, null, '验证码失败次数过多, 请重新发送验证码');
-    }
-    if (verified.status === 'expired') {
-      return result.error(res, null, '验证码过期或错误');
-    }
-    // 根据邮箱查询用户，如果用户不存在则注册用户
-    let user = await throwHandle(USER_CRUD.findOne, { email });
-    if (!user) {
-      user = await throwHandle(USER_CRUD.create, {
-        email,
-      });
-    }
-    // 每次登录签发独立会话 token
-    const token = await createSession({
-      id: String(user._id),
-      email: user.email,
-    });
-    // 获取用户部分属性
-    // 对结果赋值
-    data = {
-      info: toAuthUserInfo(user),
-      token,
-    };
-  } catch (e: any) {
-    return result.error(res, null, e.message);
+  // 获取请求参数
+  const { email, code } = req.body;
+  const verified = await verifyCode(email, code);
+  if (verified.status === 'invalid') {
+    return result.error(
+      res,
+      null,
+      `验证码错误, 您还有${verified.remaining}次机会`
+    );
   }
-  return result(res, data);
+  if (verified.status === 'exhausted') {
+    return result.error(res, null, '验证码失败次数过多, 请重新发送验证码');
+  }
+  if (verified.status === 'expired') {
+    return result.error(res, null, '验证码过期或错误');
+  }
+  // 根据邮箱查询用户，如果用户不存在则注册用户
+  let user = await throwHandle(USER_CRUD.findOne, { email });
+  if (!user) {
+    user = await throwHandle(USER_CRUD.create, {
+      email,
+    });
+  }
+  // 每次登录签发独立会话 token
+  const token = await createSession({
+    id: String(user._id),
+    email: user.email,
+  });
+  // 异常交由全局错误处理返回通用文案
+  return result(res, {
+    info: toAuthUserInfo(user),
+    token,
+  });
 }
 
 /**
  * 获取用户信息
  */
 export async function infoHandler(req: Request, res: Response) {
-  let data: object;
-  try {
-    // 从上下文获取当前用户信息
-    const _user = res.locals._context?.user;
-    // 根据email查询用户信息
-    const user = await throwHandle(USER_CRUD.findOne, _user);
-    if (!user) return result.error(res, null, '用户不存在');
-    // 返回当前请求携带的会话 token
-    const token = res.locals._context?.token;
-    // 对结果赋值
-    data = {
-      info: toAuthUserInfo(user),
-      token,
-    };
-  } catch (e: any) {
-    return result.error(res, null, e.message);
-  }
-  return result(res, data);
+  // 从上下文获取当前用户信息
+  const _user = res.locals._context?.user;
+  // 根据email查询用户信息
+  const user = await throwHandle(USER_CRUD.findOne, _user);
+  if (!user) return result.error(res, null, '用户不存在');
+  // 返回当前请求携带的会话 token
+  return result(res, {
+    info: toAuthUserInfo(user),
+    token: res.locals._context?.token,
+  });
 }
 
 /**

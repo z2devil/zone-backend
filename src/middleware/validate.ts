@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject } from 'zod';
+import { AnyZodObject, ZodError } from 'zod';
 import { result, throwHandle } from '../api/common';
 import { Authority } from '../constant/authority';
 import USER_CRUD from '../api/service/user.service';
@@ -30,8 +30,17 @@ const validate =
         req.params = parse.params;
       }
       next();
-    } catch (e: any) {
-      return result.error(res, null, e.errors || e.message);
+    } catch (e: unknown) {
+      // 参数校验错误只返回字段级简短信息
+      if (e instanceof ZodError) {
+        return result.error(
+          res,
+          null,
+          e.issues.map(({ code, message, path }) => ({ code, message, path }))
+        );
+      }
+      // 其它异常（如权限查询失败）已由 throwHandle 记录日志，对外返回通用错误
+      return result.serverError(res, null);
     }
   };
 
