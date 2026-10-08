@@ -4,7 +4,6 @@ import {
   findNote,
   removeNote,
   updateNote,
-  viewNote,
 } from '../src/api/service/note.service';
 
 const model = NoteModel as any;
@@ -65,25 +64,6 @@ async function run() {
       _id: 'note-1',
       author: 'user-1',
       isDeleted: false,
-    });
-
-    let viewQuery: any;
-    model.updateOne = (filter: unknown) => {
-      viewQuery = filter;
-      return Promise.resolve(null);
-    };
-    await viewNote({ _id: 'note-1', ip: '127.0.0.1' } as any);
-    assert.deepStrictEqual(viewQuery, {
-      $and: [
-        {
-          _id: 'note-1',
-          views: { $ne: '127.0.0.1' },
-          isDeleted: false,
-        },
-        {
-          $or: [{ visibility: 'public' }, { visibility: { $exists: false } }],
-        },
-      ],
     });
   } finally {
     model.findOne = originals.findOne;

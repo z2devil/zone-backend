@@ -5,7 +5,6 @@ import { NOTE_VISIBILITY, NoteVisibility } from '../../constant/note';
 export interface NoteDocument extends BaseDocument {
   content: string;
   author: mongoose.Schema.Types.ObjectId;
-  views: Array<string>;
   viewCount: number;
   bannerPath: string;
   title: string;
@@ -21,10 +20,6 @@ const noteSchema = schemaFactory({
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-  },
-  views: {
-    type: Array,
-    required: false,
   },
   viewCount: {
     type: Number,

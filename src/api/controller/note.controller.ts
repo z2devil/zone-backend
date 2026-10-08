@@ -69,8 +69,8 @@ export async function removeNoteHandler(req: Request, res: Response) {
 
 export async function viewNoteHandler(req: Request, res: Response) {
   disableSharedCache(res);
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-  const [e] = await silentHandle(viewNote, { ...req.query, ip });
+  // 真实客户端 IP 由 Express trust proxy 解析，不直接读取可伪造的 X-Forwarded-For。
+  const [e] = await silentHandle(viewNote, String(req.query._id), req.ip || '');
   return e ? result.error(res, null, e.message) : result(res, null);
 }
 

@@ -5,6 +5,8 @@ import {
   buildReadableNoteScope,
   withNoteScope,
 } from './note.access';
+import getRedisClient from '../../redis/client';
+import logger from '../../utils/logger';
 
 const NOTE_PROJECTION = [
   'title',
@@ -133,13 +135,35 @@ export const findAdjacentNote = async (
   return adjacentNote?.toObject();
 };
 
-/** 私密笔记不参与全局浏览量。 */
-export const viewNote = async (params: FilterQuery<NoteDocument>) => {
-  const { ip, ...noteFilter } = params;
-  return NoteModel.updateOne(
-    publicFilter({ ...noteFilter, views: { $ne: ip } }),
-    { $push: { views: ip }, $inc: { viewCount: 1 } }
-  );
+const VIEW_DEDUPE_SECONDS = 24 * 60 * 60;
+
+/**
+ * 同一 IP 对同一笔记 24 小时内只计一次浏览，去重状态存 Redis（带 TTL）。
+ * 私密笔记不参与全局浏览量；Redis 故障时放弃计数，不影响阅读。
+ */
+export const viewNote = async (noteId: string, ip: string) => {
+  let firstView: string | null;
+  try {
+    const redis = await getRedisClient();
+    firstView = await redis.set(`view:${noteId}:${ip}`, '1', {
+      NX: true,
+      EX: VIEW_DEDUPE_SECONDS,
+    });
+  } catch (error) {
+    logger.warn(
+      {
+        event: 'note_view_dedupe_failed',
+        error_type: error instanceof Error ? error.name : 'unknown',
+      },
+      'Note view dedupe failed'
+    );
+    return;
+  }
+  if (!firstView) return;
+
+  await NoteModel.updateOne(publicFilter({ _id: noteId }), {
+    $inc: { viewCount: 1 },
+  });
 };
 
 /** 只有作者本人可以更新，包括切换 visibility。 */
