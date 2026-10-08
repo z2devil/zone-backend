@@ -1,4 +1,3 @@
-import { FilterQuery } from 'mongoose';
 import { BaseCrudProvider } from '../common';
 import StatisticsModel, {
   StatisticsDocument,
@@ -9,11 +8,26 @@ const CRUD = BaseCrudProvider<
   Omit<StatisticsDocument, 'createdAt'>
 >(StatisticsModel);
 
+export type StatisticsSnapshot = Pick<
+  StatisticsDocument,
+  | 'period'
+  | 'collectedAt'
+  | 'wordCount'
+  | 'noteCount'
+  | 'viewCount'
+  | 'likeCount'
+  | 'contributes'
+>;
+
 /**
- * 数据统计
+ * 数据统计：按时段 upsert，同一时段重复采集只更新同一条记录。
  */
-export const collect = async (params: FilterQuery<StatisticsDocument>) => {
-  await CRUD.create(params);
+export const collect = async ({ period, ...stats }: StatisticsSnapshot) => {
+  await StatisticsModel.updateOne(
+    { period },
+    { $set: stats },
+    { upsert: true }
+  );
 };
 
 /**

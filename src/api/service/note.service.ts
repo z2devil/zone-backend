@@ -265,4 +265,4 @@ export const getCategories = async (actorId?: string) => {
 
 /** 定时统计只读取公开及历史公开数据。 */
 export const findPublicNotesForStatistics = () =>
-  NoteModel.find(publicFilter({}), ['content', 'createdAt']);
+  NoteModel.find(publicFilter({}), ['content', 'createdAt', 'viewCount']);

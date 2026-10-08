@@ -6,11 +6,17 @@ import logger from '../utils/logger';
 
 let statisticsTask: cron.ScheduledTask | undefined;
 
-const collectData = async () => {
+const HOUR_MS = 60 * 60 * 1000;
+
+export const collectStatistics = async (now = new Date()) => {
   const startedAt = Date.now();
   const notes = await findPublicNotesForStatistics();
   const noteCount = notes.length;
   const wordCount = notes.reduce((prev, curr) => prev + curr.content.length, 0);
+  const viewCount = notes.reduce(
+    (prev, curr) => prev + (curr.viewCount || 0),
+    0
+  );
   const contributes: StatisticsDocument['contributes'] = [];
   notes.forEach(note => {
     const date = new Date(note.createdAt);
@@ -24,9 +30,11 @@ const collectData = async () => {
     }
   });
   await collect({
+    period: Math.floor(now.getTime() / HOUR_MS) * HOUR_MS,
+    collectedAt: now,
     wordCount,
     noteCount,
-    viewCount: 0,
+    viewCount,
     likeCount: 0,
     contributes,
   });
@@ -44,7 +52,7 @@ const collectData = async () => {
 export function startSchedules() {
   if (statisticsTask) return;
   statisticsTask = cron.schedule('0 * * * *', () => {
-    collectData().catch(error => {
+    collectStatistics().catch(error => {
       logger.error(
         {
           event: 'statistics_collection_finished',

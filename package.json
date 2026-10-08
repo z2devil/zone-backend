@@ -11,6 +11,7 @@
     "migrate:note-visibility": "node scripts/migrate-note-visibility.js",
     "test": "rm -rf .test-build && tsc -p tsconfig.test.json && node --test \".test-build/test/*.test.js\"",
     "migrate:note-views": "node scripts/migrate-unset-note-views.js",
+    "migrate:statistics-retention": "node scripts/migrate-statistics-retention.js",
     "start": "node build/app.js"
   },
   "dependencies": {
