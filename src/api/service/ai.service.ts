@@ -44,8 +44,8 @@ function detectContentType(text: string): string {
   return techKeywords.some(k => text.includes(k))
     ? '技术文章'
     : tutorialKeywords.some(k => text.includes(k))
-      ? '教程指南'
-      : '综合内容';
+    ? '教程指南'
+    : '综合内容';
 }
 
 export async function generateTitle(content: string): Promise<string> {
@@ -69,7 +69,9 @@ export async function generateSummary(content: string): Promise<string> {
       { role: 'system', content: GENERATE_SUMMARY_SYSTEM_PROMPT },
       {
         role: 'user',
-        content: `内容类型：${detectContentType(content)}\n请生成摘要:\n${content}`,
+        content: `内容类型：${detectContentType(
+          content
+        )}\n请生成摘要:\n${content}`,
       },
     ],
     temperature: 0.3,
