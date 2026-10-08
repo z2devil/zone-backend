@@ -1,6 +1,9 @@
 import assert from 'assert';
 import { AddressInfo } from 'net';
 import { createApp } from '../src/app';
+import { installFakeRedis } from './helpers/fake-redis';
+
+installFakeRedis();
 
 /**
  * /api/power/* 为其它项目遗留的测试接口（匿名可写配置、可触发外部请求），应整组下线。
