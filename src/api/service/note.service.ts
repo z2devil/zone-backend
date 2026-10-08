@@ -8,16 +8,8 @@ import {
 import getRedisClient from '../../redis/client';
 import logger from '../../utils/logger';
 
-const NOTE_PROJECTION = [
-  'title',
-  'content',
-  'createdAt',
-  'author',
-  'viewCount',
-  'tags',
-  'bannerPath',
-  'visibility',
-];
+const NOTE_PROJECTION =
+  'title content createdAt author viewCount tags bannerPath visibility';
 
 const NOTE_POPULATE = [
   {
@@ -33,7 +25,7 @@ const NOTE_POPULATE = [
 
 const toNoteObject = (note: NoteDocument | null) =>
   note?.toObject({
-    transform: (_doc, ret) => {
+    transform: (_doc, ret: Record<string, unknown>) => {
       ret.viewsNum = ret.viewCount;
       delete ret.viewCount;
       return ret;
@@ -148,7 +140,7 @@ export const findAdjacentNote = async (
       },
       actorId
     ),
-    ['_id', 'title', 'createdAt', 'visibility'],
+    '_id title createdAt visibility',
     { sort: { createdAt: order, _id: order } }
   );
 
@@ -265,4 +257,4 @@ export const getCategories = async (actorId?: string) => {
 
 /** 定时统计只读取公开及历史公开数据。 */
 export const findPublicNotesForStatistics = () =>
-  NoteModel.find(publicFilter({}), ['content', 'createdAt', 'viewCount']);
+  NoteModel.find(publicFilter({}), 'content createdAt viewCount');

@@ -1,9 +1,10 @@
 import {
   FilterQuery,
   UpdateQuery,
-  DocumentDefinition,
   QueryOptions,
   Model,
+  mongo,
+  MongooseUpdateQueryOptions,
 } from 'mongoose';
 
 class BaseCrudProviderCls<document, Cdocument> {
@@ -33,7 +34,7 @@ class BaseCrudProviderCls<document, Cdocument> {
   /**
    * 新增
    */
-  async create(input: Partial<DocumentDefinition<Cdocument>>) {
+  async create(input: Partial<Cdocument>) {
     return await this.DBModel.create(input);
   }
 
@@ -66,7 +67,7 @@ class BaseCrudProviderCls<document, Cdocument> {
   async update(
     query: FilterQuery<document>,
     update: UpdateQuery<document>,
-    options?: QueryOptions
+    options?: mongo.UpdateOptions & MongooseUpdateQueryOptions<document>
   ) {
     const filter = this.requireFilter(query);
     return await this.DBModel.updateMany(
@@ -92,11 +93,7 @@ class BaseCrudProviderCls<document, Cdocument> {
       finalOptions.skip = query.current * query.size;
       finalOptions.limit = query.size;
     }
-    const result = await this.DBModel.find<
-      document & {
-        _id: string;
-      }
-    >(
+    const result = await this.DBModel.find(
       {
         ...query,
         isDeleted: false,
@@ -115,11 +112,7 @@ class BaseCrudProviderCls<document, Cdocument> {
     projection?: any,
     options?: QueryOptions
   ) {
-    return await this.DBModel.findOne<
-      document & {
-        _id: string;
-      }
-    >(
+    return await this.DBModel.findOne(
       {
         ...query,
         isDeleted: false,
@@ -140,11 +133,7 @@ class BaseCrudProviderCls<document, Cdocument> {
     // 从 params 中分离分页参数和查询条件
     const { current, size, ...filter } = params;
 
-    const query = this.DBModel.find<
-      document & {
-        _id: string;
-      }
-    >(
+    const query = this.DBModel.find(
       {
         ...filter,
         isDeleted: false,
