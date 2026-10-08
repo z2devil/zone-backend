@@ -25,6 +25,8 @@ export const schemaFactory = (params: object) => {
     },
     {
       timestamps: false,
+      // Mongoose 7 起默认 false。查询依赖剔除 schema 外字段（分页参数等），显式保持 6.x 行为。
+      strictQuery: true,
     }
   );
 
