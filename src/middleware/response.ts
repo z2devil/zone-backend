@@ -1,16 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
+import config from '../constant/settings';
+
+const allowedOrigins = new Set(config.corsOrigins);
 
 /**
  * 响应头处理中间件
  */
 const response = (req: Request, res: Response, next: NextFunction) => {
-  const { origin, Origin, referer, Referer } = req.headers;
+  const { origin } = req.headers;
 
-  // 若没有手动设置，则为通配符
-  const allowOrigin = origin || Origin || referer || Referer || '*';
-
-  // 允许请求源
-  res.header('Access-Control-Allow-Origin', allowOrigin);
+  // 只对白名单来源回显 Allow-Origin
+  res.vary('Origin');
+  if (origin && allowedOrigins.has(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   // 允许头部字段
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   // 允许公开的头部字段

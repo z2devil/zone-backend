@@ -14,6 +14,14 @@ export const REQUIRED_SECRET_ENV = [
   'AI_API_KEY',
 ] as const;
 
+// 跨域白名单默认值：线上站点与本地 Next.js 开发地址
+const DEFAULT_CORS_ORIGINS = [
+  'https://z2devil.cn',
+  'https://www.z2devil.cn',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+
 // 仅用于本地开发与测试，生产环境必须注入 JWT_SECRET
 const DEV_ONLY_TOKEN_SECRET = 'zone-dev-only-token-secret';
 
@@ -29,6 +37,12 @@ export function loadSettings(env: Env = process.env) {
   return {
     // 端口号
     port: 2333,
+    // 跨域白名单，CORS_ORIGINS 以逗号分隔覆盖默认值
+    corsOrigins: env.CORS_ORIGINS
+      ? env.CORS_ORIGINS.split(',')
+          .map(origin => origin.trim())
+          .filter(Boolean)
+      : DEFAULT_CORS_ORIGINS,
     // 数据库相关
     db: {
       uri: 'mongodb://mongodb:27017/blog',
