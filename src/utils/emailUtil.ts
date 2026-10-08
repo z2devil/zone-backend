@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export default {
-  send: (to: string, subject: string, content: string) => {
+  send: async (to: string, subject: string, content: string) => {
     const data = {
       from: config.mail.username,
       to,
@@ -17,6 +17,6 @@ export default {
       text: content,
       // html: '支持发送html',
     };
-    transporter.sendMail(data);
+    await transporter.sendMail(data);
   },
 };

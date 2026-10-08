@@ -4,6 +4,7 @@ import config from './constant/settings';
 import routes from './routes';
 import { logger } from './utils';
 import middleware from './middleware';
+import { errorHandler } from './middleware/error';
 import { connectDB } from './api/common';
 import { disconnectDB, isMongoReady } from './api/common/connectDB';
 import getRedisClient, { disconnectRedis, isRedisReady } from './redis/client';
@@ -20,6 +21,7 @@ export function createApp(): Express {
   middleware.init(app);
   registerHealthRoutes(app, { isMongoReady, isRedisReady });
   routes(app);
+  app.use(errorHandler);
   return app;
 }
 
@@ -92,7 +94,22 @@ function registerGracefulShutdown(server: Server) {
   process.once('SIGINT', () => void shutdown('SIGINT'));
 }
 
+/**
+ * 未处理的 Promise 拒绝只记录日志，不让单个请求的异常拖垮进程
+ */
+export function handleUnhandledRejection(reason: unknown) {
+  logger.error(
+    {
+      event: 'unhandled_rejection',
+      error_type: reason instanceof Error ? reason.name : typeof reason,
+      error_message: reason instanceof Error ? reason.message : String(reason),
+    },
+    'Unhandled promise rejection'
+  );
+}
+
 export async function startApp(): Promise<Server> {
+  process.on('unhandledRejection', handleUnhandledRejection);
   await connectDependencies();
   const server = await listen(createApp());
   startSchedules();

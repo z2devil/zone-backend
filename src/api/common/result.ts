@@ -22,6 +22,7 @@ interface IResult {
   error(res: Response, data: unknown, message?: unknown): Response;
   denied(res: Response, data: unknown): Response;
   unauthorized(res: Response, data: unknown): Response;
+  serverError(res: Response, data: unknown): Response;
 }
 
 /**
@@ -91,6 +92,14 @@ result.unauthorized = function (res: Response, data: unknown) {
   return this(res, data, {
     code: RESPONSE_CODE_MAP[ResponseType.UNAUTHORIZED],
     message: RESPONSE_MESSAGE_MAP[ResponseType.UNAUTHORIZED],
+  });
+};
+
+// 服务器内部错误响应：对外只返回通用文案
+result.serverError = function (res: Response, data: unknown) {
+  return this(res, data, {
+    code: RESPONSE_CODE_MAP[ResponseType.SERVER_ERROR],
+    message: RESPONSE_MESSAGE_MAP[ResponseType.SERVER_ERROR],
   });
 };
 

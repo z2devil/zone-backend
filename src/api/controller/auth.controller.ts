@@ -6,7 +6,8 @@ import { jwtUtil } from '../../utils';
 import emailer from '../../utils/emailUtil';
 import USER_CRUD from '../../api/service/user.service';
 import { toAuthUserInfo } from './auth.presenter';
-import { issueCode, verifyCode } from '../service/auth.code';
+import { issueCode, revokeCode, verifyCode } from '../service/auth.code';
+import { getRequestLogger } from '../../observability/request';
 
 /**
  * 发送验证码
@@ -23,13 +24,26 @@ export async function sendCodeHandler(req: Request, res: Response) {
     );
   }
   // 发送邮箱验证码
-  emailer.send(
-    email,
-    `【${issued.code}】z2devil个人博客的验证码`,
-    `您的验证码为：${issued.code}, ${
-      config.auth['code-expire-time'] / 60
-    }分钟内有效。`
-  );
+  try {
+    await emailer.send(
+      email,
+      `【${issued.code}】z2devil个人博客的验证码`,
+      `您的验证码为：${issued.code}, ${
+        config.auth['code-expire-time'] / 60
+      }分钟内有效。`
+    );
+  } catch (error) {
+    getRequestLogger(res).error(
+      {
+        event: 'verification_mail_failed',
+        error_type: error instanceof Error ? error.name : 'unknown',
+      },
+      'Verification mail failed'
+    );
+    // 发送失败时撤销验证码与冷却，允许用户立即重试
+    await revokeCode(email).catch(() => undefined);
+    return result.serverError(res, null);
+  }
   return result(res, null);
 }
 

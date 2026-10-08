@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import config from '../constant/settings';
 import { jwtUtil } from '../utils';
-import { silentHandle } from '../api/common';
+import { result, silentHandle } from '../api/common';
 import { redisUtils } from '../redis';
 import { maskIdentifier } from '../observability/logger';
 import { getRequestLogger } from '../observability/request';
@@ -20,9 +20,11 @@ const context = async (req: Request, res: Response, next: NextFunction) => {
     jwtUtil.verify,
     Array.isArray(token) ? token[0] : token
   );
-  // 校验成功时
-  if (!e && data && typeof data !== 'string' && data.id && data.email) {
-    // email存在时
+  // 校验失败时按未登录处理
+  if (e || !data || typeof data === 'string' || !data.id || !data.email) {
+    return next();
+  }
+  try {
     const tokenKey = config.auth['token-prefix'] + data.email;
     const redisToken = await redisUtils.get(tokenKey);
     // 缓存匹配时
@@ -42,6 +44,16 @@ const context = async (req: Request, res: Response, next: NextFunction) => {
         await redisUtils.setTTL(tokenKey, config.auth['token-expire-time']);
       }
     }
+  } catch (error) {
+    // 会话存储不可用时无法判断登录态：返回 500，避免前端误判为登录失效
+    getRequestLogger(res).error(
+      {
+        event: 'session_lookup_failed',
+        error_type: error instanceof Error ? error.name : 'unknown',
+      },
+      'Session lookup failed'
+    );
+    return result.serverError(res, null);
   }
   next();
 };

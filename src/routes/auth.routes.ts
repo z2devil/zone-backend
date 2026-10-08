@@ -8,6 +8,7 @@ import {
 } from '../api/controller/auth.controller';
 import { Authority } from '../constant/authority';
 import { byEmail, byIp, createRateLimit } from '../middleware/limit';
+import { asyncHandler } from '../middleware/error';
 
 const router = Router();
 
@@ -46,7 +47,7 @@ router.get(
   sendCodeIpLimit,
   validate(sendCodeSchema),
   sendCodeEmailLimit,
-  sendCodeHandler
+  asyncHandler(sendCodeHandler)
 );
 
 /**
@@ -57,12 +58,12 @@ router.post(
   signIpLimit,
   validate(signSchema),
   signEmailLimit,
-  signHandler
+  asyncHandler(signHandler)
 );
 
 /**
  * 获取用户信息
  */
-router.get('/info', validate(null, Authority.login), infoHandler);
+router.get('/info', validate(null, Authority.login), asyncHandler(infoHandler));
 
 export default router;
