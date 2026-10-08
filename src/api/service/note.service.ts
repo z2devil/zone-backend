@@ -20,7 +20,8 @@ const NOTE_PROJECTION = [
 const NOTE_POPULATE = [
   {
     path: 'author',
-    select: ['email', 'nickname', 'lv', 'avatarPath'],
+    // 公开接口只返回作者的公开资料；_id 默认保留，供前端判断是否为作者。
+    select: ['nickname', 'avatarPath'],
   },
   {
     path: 'tags',

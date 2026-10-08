@@ -18,11 +18,18 @@ async function run() {
 
   try {
     let query: any;
-    model.findOne = (filter: unknown) => {
+    let findOptions: any;
+    model.findOne = (filter: unknown, _projection: unknown, options: any) => {
       query = filter;
+      findOptions = options;
       return Promise.resolve(null);
     };
     await findNote({ _id: 'note-1' } as any, 'user-1');
+    // 作者信息只暴露公开字段，不返回邮箱与角色等级。
+    const authorPopulate = findOptions.populate.find(
+      (item: any) => item.path === 'author'
+    );
+    assert.deepStrictEqual(authorPopulate.select, ['nickname', 'avatarPath']);
     assert.deepStrictEqual(query, {
       $and: [
         { _id: 'note-1', isDeleted: false },
