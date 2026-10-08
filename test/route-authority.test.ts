@@ -30,6 +30,10 @@ async function run() {
   r = await callRoute(userRouter, 'get', '/test', { lv: 1, query: page });
   assert.strictEqual(r.found, false);
 
+  // DELETE /api/user：原先误绑定查询 handler（匿名可列用户），前端无可达调用方，已移除
+  r = await callRoute(userRouter, 'delete', '/', { lv: null, query: page });
+  assert.strictEqual(r.found, false);
+
   // PUT /api/user：仍为登录即可修改自己的资料
   r = await callRoute(userRouter, 'put', '/', {
     lv: 1,

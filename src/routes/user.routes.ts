@@ -31,11 +31,6 @@ router.post(
 router.get('/', validate(findUserSchema, Authority.admin), findUserHandler);
 
 /**
- * 删除用户
- */
-router.delete('/', validate(findUserSchema), findUserHandler);
-
-/**
  * 更新用户
  */
 router.put('/', validate(updateUserSchema, Authority.login), updateUserHandler);
