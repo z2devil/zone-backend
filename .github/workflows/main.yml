@@ -81,8 +81,8 @@ jobs:
           command: |
             set -eu
             cd /home/ubuntu
-            sudo docker-compose pull
-            sudo docker-compose up -d
+            sudo docker-compose pull zone-backend
+            sudo docker-compose up -d zone-backend
             attempt=1
             while [ "$attempt" -le 20 ]; do
               health="$(sudo docker exec zone-backend node -e \
