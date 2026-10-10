@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { QueryFilter } from 'mongoose';
 import { BaseCrudProvider } from '../common';
 import PermissionModel, {
   PermissionDocument,
@@ -10,7 +10,7 @@ const CRUD = BaseCrudProvider<
 >(PermissionModel);
 
 export const findPermissions = async (
-  params: FilterQuery<PermissionDocument>
+  params: QueryFilter<PermissionDocument>
 ) => {
   const [list, total] = await CRUD.findPaginate(
     params,

@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { QueryFilter } from 'mongoose';
 import { BaseCrudProvider } from '../common';
 import UserModel, { UserDocument } from '../models/user.model';
 
@@ -9,7 +9,7 @@ const CRUD = BaseCrudProvider<UserDocument, Omit<UserDocument, 'createdAt'>>(
 /**
  * 查找标签
  */
-export const findUsers = async (params: FilterQuery<UserDocument>) => {
+export const findUsers = async (params: QueryFilter<UserDocument>) => {
   const [list, total] = await CRUD.findPaginate(
     params,
     ['email', 'lv', 'avatarPath', 'nickname', 'createdAt'],

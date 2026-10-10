@@ -1,4 +1,4 @@
-import mongoose, { FilterQuery } from 'mongoose';
+import mongoose, { QueryFilter } from 'mongoose';
 import NoteModel, { NoteDocument } from '../models/note.model';
 import {
   buildPublicNoteScope,
@@ -46,17 +46,17 @@ const buildContentSearch = (keyword: string) =>
     'i'
   );
 
-const readableFilter = (filter: FilterQuery<NoteDocument>, actorId?: unknown) =>
+const readableFilter = (filter: QueryFilter<NoteDocument>, actorId?: unknown) =>
   withNoteScope(
     { ...filter, isDeleted: false },
     buildReadableNoteScope(actorId)
-  ) as FilterQuery<NoteDocument>;
+  ) as QueryFilter<NoteDocument>;
 
-const publicFilter = (filter: FilterQuery<NoteDocument>) =>
+const publicFilter = (filter: QueryFilter<NoteDocument>) =>
   withNoteScope(
     { ...filter, isDeleted: false },
     buildPublicNoteScope()
-  ) as FilterQuery<NoteDocument>;
+  ) as QueryFilter<NoteDocument>;
 
 /** 发表笔记。模型与参数校验共同保证旧客户端默认公开。 */
 export const createNote = async (params: Partial<NoteDocument>) => {
@@ -66,7 +66,7 @@ export const createNote = async (params: Partial<NoteDocument>) => {
 
 /** 查找当前访客可读的单篇笔记。 */
 export const findNote = async (
-  params: FilterQuery<NoteDocument>,
+  params: QueryFilter<NoteDocument>,
   actorId?: string
 ) => {
   const note = await NoteModel.findOne(
@@ -82,10 +82,10 @@ export const findNote = async (
 
 /** 查找当前访客可读的笔记列表。 */
 export const findNotes = async (
-  params: FilterQuery<NoteDocument>,
+  params: QueryFilter<NoteDocument>,
   actorId?: string
 ) => {
-  const baseFilter: FilterQuery<NoteDocument> = {};
+  const baseFilter: QueryFilter<NoteDocument> = {};
 
   if (params.search) {
     const keyword = String(params.search);
@@ -185,10 +185,10 @@ export const updateNote = async (
   update: Partial<NoteDocument>
 ) => {
   return NoteModel.findOneAndUpdate(
-    { _id: noteId, author, isDeleted: false },
+    { _id: noteId, author, isDeleted: false } as QueryFilter<NoteDocument>,
     { ...update, updatedAt: Date.now() },
     {
-      new: true,
+      returnDocument: 'after',
       projection: NOTE_PROJECTION,
       populate: NOTE_POPULATE,
     }
@@ -198,7 +198,7 @@ export const updateNote = async (
 /** 只有作者本人可以软删除。返回是否命中（不存在与无权不区分）。 */
 export const removeNote = async (noteId: string, author: string) => {
   const { matchedCount } = await NoteModel.updateOne(
-    { _id: noteId, author, isDeleted: false },
+    { _id: noteId, author, isDeleted: false } as QueryFilter<NoteDocument>,
     { updatedAt: Date.now(), isDeleted: true }
   );
   return matchedCount > 0;

@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { QueryFilter } from 'mongoose';
 import { BaseCrudProvider } from '../common';
 import RoleModel, { RoleDocument } from '../models/role.model';
 
@@ -6,7 +6,7 @@ const CRUD = BaseCrudProvider<RoleDocument, Omit<RoleDocument, 'createdAt'>>(
   RoleModel
 );
 
-export const findRoles = async (params: FilterQuery<RoleDocument>) => {
+export const findRoles = async (params: QueryFilter<RoleDocument>) => {
   const [list, total] = await CRUD.findPaginate(params, ['name', 'createdAt'], {
     sort: { createdAt: -1 },
   });
@@ -29,7 +29,7 @@ export async function updateRolePermission(
   const updatedRole = await RoleModel.findByIdAndUpdate(
     roleId,
     { permissions: permissionIds },
-    { new: true }
+    { returnDocument: 'after' }
   ).populate('permissions');
   return updatedRole;
 }

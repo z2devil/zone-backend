@@ -39,11 +39,6 @@ const userSchema = schemaFactory({
   permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Permission' }],
 });
 
-// save前置钩子
-userSchema.pre('save', next => {
-  next();
-});
-
 // 创建模板 执行之后会自动在mongodb中创建相应的模板
 const UserModel = mongoose.model<UserDocument>('User', userSchema);
 

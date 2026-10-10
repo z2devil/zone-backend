@@ -1,5 +1,5 @@
 import {
-  FilterQuery,
+  QueryFilter,
   UpdateQuery,
   QueryOptions,
   Model,
@@ -18,7 +18,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 写操作的过滤条件：只保留 schema 内且有值的字段。
    * Mongoose 会静默剔除未知字段，若剔除后为空将命中整个集合，因此直接拒绝。
    */
-  private requireFilter(query: FilterQuery<document>) {
+  private requireFilter(query: QueryFilter<document>) {
     const filter: Record<string, unknown> = {};
     Object.entries(query || {}).forEach(([key, value]) => {
       if (value !== undefined && this.DBModel.schema.path(key)) {
@@ -28,25 +28,25 @@ class BaseCrudProviderCls<document, Cdocument> {
     if (Object.keys(filter).length === 0) {
       throw new Error('缺少有效的过滤条件，拒绝批量写入');
     }
-    return filter as FilterQuery<document>;
+    return filter as QueryFilter<document>;
   }
 
   /**
    * 新增
    */
   async create(input: Partial<Cdocument>) {
-    return await this.DBModel.create(input);
+    return await this.DBModel.create(input as unknown as Partial<document>);
   }
 
   /**
    * 新增或修改
    */
-  async createOrUpdate(input: Partial<FilterQuery<document>>) {
+  async createOrUpdate(input: Partial<QueryFilter<document>>) {
     const result = await this.DBModel.find({
       _id: input._id,
     });
     if (result.length === 0) {
-      return await this.DBModel.create(input);
+      return await this.DBModel.create(input as unknown as Partial<document>);
     } else {
       return await this.DBModel.findByIdAndUpdate(
         input._id,
@@ -55,7 +55,7 @@ class BaseCrudProviderCls<document, Cdocument> {
           isDeleted: false,
         },
         {
-          new: true,
+          returnDocument: 'after',
         }
       );
     }
@@ -65,7 +65,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 修改
    */
   async update(
-    query: FilterQuery<document>,
+    query: QueryFilter<document>,
     update: UpdateQuery<document>,
     options?: mongo.UpdateOptions & MongooseUpdateQueryOptions<document>
   ) {
@@ -84,7 +84,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 查询
    */
   async find(
-    query: FilterQuery<document>,
+    query: QueryFilter<document>,
     projection?: any,
     options?: QueryOptions
   ) {
@@ -108,7 +108,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 查询单个
    */
   async findOne(
-    query: FilterQuery<document>,
+    query: QueryFilter<document>,
     projection?: any,
     options?: QueryOptions
   ) {
@@ -126,7 +126,7 @@ class BaseCrudProviderCls<document, Cdocument> {
    * 分页查询
    */
   async findPaginate(
-    params: FilterQuery<document>,
+    params: QueryFilter<document>,
     projection?: any,
     options?: QueryOptions
   ) {
@@ -157,7 +157,7 @@ class BaseCrudProviderCls<document, Cdocument> {
   /**
    * 删除
    */
-  async delete(query: FilterQuery<document>) {
+  async delete(query: QueryFilter<document>) {
     const filter = this.requireFilter(query);
     return await this.DBModel.updateMany(filter, {
       updatedAt: Date.now(),
