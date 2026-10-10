@@ -18,7 +18,7 @@ async function run() {
     const large = await post(
       JSON.stringify({ email: 'big@zone.local', code: 'x'.repeat(300 * 1024) })
     );
-    assert.strictEqual(large.status, 200);
+    assert.strictEqual(large.status, 400);
     assert.strictEqual((await large.json()).code, 400);
 
     // 超过上限返回统一 JSON envelope
@@ -28,13 +28,13 @@ async function run() {
         code: 'x'.repeat(6 * 1024 * 1024),
       })
     );
-    assert.strictEqual(tooLarge.status, 200);
+    assert.strictEqual(tooLarge.status, 413);
     assert.match(tooLarge.headers.get('content-type') || '', /json/);
     assert.strictEqual((await tooLarge.json()).code, 413);
 
     // 非法 JSON 返回统一 JSON envelope
     const invalid = await post('{"email":');
-    assert.strictEqual(invalid.status, 200);
+    assert.strictEqual(invalid.status, 400);
     assert.match(invalid.headers.get('content-type') || '', /json/);
     const body = await invalid.json();
     assert.strictEqual(body.code, 400);

@@ -4,7 +4,7 @@ import config from './constant/settings';
 import routes from './routes';
 import { logger } from './utils';
 import middleware from './middleware';
-import { errorHandler } from './middleware/error';
+import { errorHandler, notFoundHandler } from './middleware/error';
 import { connectDB } from './api/common';
 import { disconnectDB, isMongoReady } from './api/common/connectDB';
 import { connectRedis, disconnectRedis, isRedisReady } from './redis/client';
@@ -21,6 +21,7 @@ export function createApp(): Express {
   middleware.init(app);
   registerHealthRoutes(app, { isMongoReady, isRedisReady });
   routes(app);
+  app.use(notFoundHandler);
   app.use(errorHandler);
   return app;
 }

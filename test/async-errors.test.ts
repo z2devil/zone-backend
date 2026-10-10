@@ -23,7 +23,7 @@ async function verifyAsyncHandler() {
   app.use(errorHandler);
   await withServer(app, async baseURL => {
     const response = await fetch(`${baseURL}/boom`);
-    assert.strictEqual(response.status, 200);
+    assert.strictEqual(response.status, 500);
     const body = await response.json();
     assert.strictEqual(body.code, 500);
     assert.strictEqual(body.message, '服务器内部错误');

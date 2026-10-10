@@ -21,6 +21,16 @@ export const asyncHandler =
   };
 
 /**
+ * 未匹配任何路由：返回 404 envelope，而不是 Express 默认的 HTML
+ */
+export function notFoundHandler(_req: Request, res: Response) {
+  return result(res, null, {
+    code: RESPONSE_CODE_MAP[ResponseType.NOT_FOUND],
+    message: RESPONSE_MESSAGE_MAP[ResponseType.NOT_FOUND],
+  });
+}
+
+/**
  * 全局错误处理：记录日志，对外只返回通用文案
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

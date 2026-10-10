@@ -39,8 +39,6 @@ const result: IResult = (
 ) => {
   const { code = RESPONSE_CODE_MAP[ResponseType.SUCCESS], message } = options;
 
-  const status = RESPONSE_CODE_MAP[ResponseType.SUCCESS];
-
   const response: IResponse = {
     code,
     data,
@@ -48,7 +46,8 @@ const result: IResult = (
 
   response.message ??= message;
 
-  return res.status(status).send(response);
+  // HTTP 状态码与 envelope 的 code 保持一致
+  return res.status(code).send(response);
 };
 
 // 错误响应
