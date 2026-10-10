@@ -103,7 +103,7 @@ export function loadSettings(env: Env = process.env) {
     ai: {
       baseURL: secret('AI_BASE_URL'),
       apiKey: secret('AI_API_KEY'),
-      model: 'deepseek-chat',
+      model: 'deepseek-flash',
     },
   };
 }
