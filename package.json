@@ -47,7 +47,7 @@
     "lint-staged": "^13.2.2",
     "prettier": "^2.7.1",
     "ts-node-dev": "^1.1.8",
-    "typescript": "^4.6.3",
+    "typescript": "^5.9.3",
     "z2-cz-customizable": "0.0.0-development"
   },
   "config": {
